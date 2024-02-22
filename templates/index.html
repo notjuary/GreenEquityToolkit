@@ -1,10 +1,200 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f0f1f1;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #48a363;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+}
+
+main {
+  padding: 20px;
+}
+
+section {
+  margin-bottom: 20px;
+}
+
+.introduzione {
+  text-align: center;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.introduzione h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.introduzione p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.introduzione a {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #000;
+  color: #fff;
+  text-decoration: none;
+}
+
+footer {
+  background-color: #48a363;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+
+/* Sidebar and Sidebar Menu CSS */
+.sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #48a363;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+}
+
+.sidebar a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #f0f1f1;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidebar a:hover {
+  color: #f1f1f1;
+}
+
+.sidebar .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+.openbtn {
+  font-size: 20px;
+  cursor: pointer;
+  background-color: #71b084;
+  color: #f0f1f1;
+  padding: 10px 15px;
+  border: none;
+}
+
+.openbtn:hover {
+  background-color: #71b084;
+}
+
+#main {
+  transition: margin-left .5s;
+  padding: 16px;
+}
+
+.submenu {
+  display: none;
+  background-color: #71b084;
+}
+
+.sidebar a.submenu-btn {
+  position: relative;
+}
+
+.sidebar a.submenu-btn::after {
+  content: '▶';
+  position: absolute;
+  right: 20px;
+}
+
+.sidebar a.submenu-btn.active::after {
+  content: '▼';
+}
+</style>
 </head>
 <body>
+  <header>
+    <h1>Sustainability toolkit</h1>
+  </header>
+  <div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+    <a href="/" class="submenu-btn">Home</a>
+    <a href="#" class="submenu-btn">Social Sustainability</a>
+    <div class="submenu">
+      <a href="#">Submenu 1</a>
+      <a href="#">Submenu 2</a>
+    </div>
+    <a href="#" class="submenu-btn">Environmental Sustainability</a>
+    <div class="submenu">
+      <a href="/sostenibilita/trainingFile">Training File</a>
+      <a href="sostenibilita/modelView">Training Machine Learning</a>
+    </div>
+    <a href="#">About</a>
+  </div>
+  <div id="main">
+    <button class="openbtn" onclick="openNav()">☰</button>  
+    <main>
+      <section class="introduzione">
+        <h2>What does the sustainability tool do?</h2>
+        <p>
+          Create sustainable, equitable and powerful machine learning models. Our tool helps you optimize energy efficiency, promote equity, and prevent discrimination, for truly cutting-edge ML models.
+        </p>
+        <p>
+         The tool may be able to help you to monitor energy aspects, enabling you to improve more the interaction between energy efficiency and other controls to realize of efficient and environmentally sustainable ML models. 
+            In addition to considering aspects of environmental sustainability, the tool can help you to operationalize equity and avoid all forms of discrimination, 
+            consolidating more into your ML systems so that they are fair, equitable, moreover efficient.
+        </p>
+        <a href="#">Scopri di più</a>
+      </section>
+    </main>
+  </div>
+  <footer>
+    <p>Copyright © 2023</p>
+  </footer>
+<script>
+function openNav() {
+  document.getElementById("mySidebar").style.width = "250px";
+  document.getElementById("main").style.marginLeft = "250px";
+}
 
+function closeNav() {
+  document.getElementById("mySidebar").style.width = "0";
+  document.getElementById("main").style.marginLeft= "0";
+}
+
+var submenuBtns = document.querySelectorAll('.submenu-btn');
+for (let i = 0; i < submenuBtns.length; i++) {
+  submenuBtns[i].addEventListener('click', function(e) {
+    var submenu = this.nextElementSibling;
+    if (submenu.style.display === "block") {
+      submenu.style.display = "none";
+    } else {
+      submenu.style.display = "block";
+    }
+  });
+}
+</script>
 </body>
 </html>

@@ -1,10 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+<style>
+body {
+  font-family: 'Lato', sans-serif;
+}
+
+.sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #48a363;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+}
+
+.sidebar a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #f0f1f1;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidebar a:hover {
+  color: #f1f1f1;
+}
+
+.sidebar .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+.openbtn {
+  font-size: 20px;
+  cursor: pointer;
+  background-color: #71b084;
+  color: #f0f1f1;
+  padding: 10px 15px;
+  border: none;
+}
+
+.openbtn:hover {
+  background-color: #71b084;
+}
+
+#main {
+  transition: margin-left .5s;
+  padding: 16px;
+}
+
+.submenu {
+  display: none;
+  background-color: #71b084;
+}
+
+.sidebar a.submenu-btn {
+  position: relative;
+}
+
+.sidebar a.submenu-btn::after {
+  content: '▶';
+  position: absolute;
+  right: 20px;
+}
+
+.sidebar a.submenu-btn.active::after {
+  content: '▼';
+}
+
+</style>
 </head>
 <body>
+
+<div id="mySidebar" class="sidebar">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+  <a href="/" class="submenu-btn">Home</a>
+  <a href="#" class="submenu-btn">Social Sustainability</a>
+  <div class="submenu">
+    <a href="#">Submenu 1</a>
+    <a href="#">Submenu 2</a>
+  </div>
+  <a href="#" class="submenu-btn">Environmental Sustainability</a>
+  <div class="submenu">
+    <a href="/sostenibilita/trainingFile">Upload File</a>
+    <a href="/sostenibilita/modelView">Training Machine Learning</a>
+  </div>
+  <a href="#">About</a>
+</div>
+
+<div id="main">
+  <button class="openbtn" onclick="openNav()">☰</button>  
+</div>
+
+<script>
+function openNav() {
+  document.getElementById("mySidebar").style.width = "250px";
+  document.getElementById("main").style.marginLeft = "250px";
+}
+
+function closeNav() {
+  document.getElementById("mySidebar").style.width = "0";
+  document.getElementById("main").style.marginLeft= "0";
+}
+
+var submenuBtns = document.querySelectorAll('.submenu-btn');
+for (let i = 0; i < submenuBtns.length; i++) {
+  submenuBtns[i].addEventListener('click', function(e) {
+    var submenu = this.nextElementSibling;
+    if (submenu.style.display === "block") {
+      submenu.style.display = "none";
+    } else {
+      submenu.style.display = "block";
+    }
+  });
+}
+</script>
 
 </body>
 </html>
