@@ -11,7 +11,7 @@ Would you like to download the repository locally and run it? Follow these steps
 Clone the project
 
 ```bash
-   git clone https://github.com/notjuary/barlottiSustainability
+   git clone [https://github.com/notjuary/tesiSostenibilita]
 ```
 
 Go to the cloned folder
