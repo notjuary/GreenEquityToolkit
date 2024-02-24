@@ -216,19 +216,33 @@ def machineLearningTraining(request):
                 }
                 return render(request, '404.html', context)
 
-            # Stop emission monitoring
-            tracker.stop()
+            finally:
+                # Stop emissioni del tracker
+                tracker.stop()
 
-            # Check if the file has been created
-            print(f"CSV file created: {os.path.join(output_dir, output_file)}")
+                dataResults = []
+                # Check if the file has been created
+                csv_file_path = os.path.join(output_dir, output_file)
+                if os.path.isfile(csv_file_path):
+                    print(f"CSV file created: {csv_file_path}")
 
-            with open(output_dir+'/'+output_file,'r') as csvfile:
-                csv_reader = csv.reader(csvfile, delimiter=',')
-                for row in csv_reader:
-                    print(row)
+                    with open(csv_file_path, 'r') as csvfile:
+                        csv_reader = csv.DictReader(csvfile, delimiter=',')
+                        for row in csv_reader:
+                            print(row)
+                            dataResults.append({
+                                'timestamp':row['timestamp'],
+                                'run_id':row['run_id'],
+                                'energy_consumed': row['energy_consumed'],
+                                'duration': row['duration'],
+                                'ram_power': row['ram_power'],
+                            })
+                else:
+                    print(f"CSV file not found: {csv_file_path}")
 
-            messages.success(request, "Processing successfully completed!")
-            return render(request, 'results.html')
+                messages.success(request, "Processing successfully completed!")
+                return render(request, 'results.html', {'data': dataResults})
+
         else:
             print(form.errors)
 
@@ -339,20 +353,33 @@ def uploadFile(request):
                     'errore': errore,
                 }
                 return render(request, '404.html',context)
+            finally:
+                #Stop emissioni del tracker
+                tracker.stop()
 
-            tracker.stop()
-
+            dataResults=[]
             # Check if the file has been created
-            print(f"CSV file created: {os.path.join(output_dir, output_file)}")
+            csv_file_path = os.path.join(output_dir, output_file)
+            if os.path.isfile(csv_file_path):
+                print(f"CSV file created: {csv_file_path}")
 
-            with open(output_dir + '/' + output_file, 'r') as csvfile:
-                csv_reader = csv.reader(csvfile, delimiter=',')
-                for row in csv_reader:
-                    print(row)
+                with open(csv_file_path, 'r') as csvfile:
+                    csv_reader = csv.DictReader(csvfile, delimiter=',')
+                    for row in csv_reader:
+                        print(row)
+                        dataResults.append({
+                            'timestamp': row['timestamp'],
+                            'run_id': row['run_id'],
+                            'energy_consumed': row['energy_consumed'],
+                            'duration': row['duration'],
+                            'ram_power': row['ram_power'],
+                        })
+            else:
+                print(f"CSV file not found: {csv_file_path}")
 
             messages.success(request, "Processing successfully completed!")
             os.remove(temp_file_path) # Remove the temporary file
-            return render(request, 'results.html')
+            return render(request, 'results.html',{'data':dataResults})
         else:
             print(form.errors)
             errore = "Error loading file"
