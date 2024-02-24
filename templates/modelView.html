@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,28 +102,29 @@
     <meta charset="UTF-8">
     <title>Carica Modello ML</title>
 </head>
-<body>
-<form action="/sostenibilita/machineLearningTraining" method="post" enctype="multipart/form-data">
-    <section class="introduzione">
-        {% csrf_token %}
-        <h2>Select ML model pre-trained to evaluate energy efficiency</h2>
-        <p>In this section you can evaluate the energy efficiency among those available below</p>
-        <label for="modelTrained">Select the type of model pre-trained:</label>
-        <select id="modelTrained" name="modelTypeTrained">
-            <option value="bert-base-uncased">BERT</option>
-            <option value="distilbert-base-uncased">DistilBERT</option>
+
+    <form action="/sostenibilita/machineLearningTraining" method="post" enctype="multipart/form-data">
+        <section class="introduzione">
+            {% csrf_token %}
+             <h2>Select ML model pre-trained to evaluate energy efficiency</h2>
+            <p>In this section you can evaluate the energy efficiency among those available below</p>
+             {{ form.modelTypeTrained.label_tag }} {{ form.modelTypeTrained }}
+            {{ form.countryIsoCode.label_tag }} {{ form.countryIsoCode }}
+            </select>
+            <input type="submit" value="Upload">
             
-        </select>
-        <input type="submit" value="Upload">
+        </section>
+    </form>
+    <section class="introduzione">
+        <h4>
+            CodeCarbon
+        </h4>
+        <p>
+            In this section you can select one of the available pre-trained models, where you can later view the energy consumption and related CO2 emissions of the selected pre-trained model
+        </p>
     </section>
-</form>
-<section class="introduzione">
-    <h4>
-        CodeCarbon
-    </h4>    
-    <p>
-        In this section you can select one of the available pre-trained models, where you can later view the energy consumption and related CO2 emissions of the selected pre-trained model
-    </p>
-</section>
+<script>    
+    
+</script>
 </body>
 </html>

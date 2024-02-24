@@ -107,17 +107,11 @@
         {% csrf_token %}
         <h2>Upload ML model to evaluate energy efficiency</h2>
         <p>In this section you can evaluate the energy efficiency of your ML models by uploading the ML model file, dataset, and supported model type, respectively.</p>
-        <label for="fileTrainingInput">Select the ML model file to be uploaded:</label>
-        <input type="file" id="fileTrainingInput" name="fileTraining" accept=".h5,.pt,.pkl,.joblib,.onnx">
-        <label for="dataFileInput">Selects the data file on which the model is trained:</label>
-        <input type="file" id="dataFileInput" name="dataFile" accept=".csv,.xlsx,.xls,.json,.txt,.yaml">
-        <label for="modelType">Select the type of model:</label>
-        <select id="modelType" name="modelType">
-            <option value="sklearn">Scikit-learn</option>
-            <option value="tensorflow">TensorFlow</option>
-            <option value="pytorch">PyTorch</option>
-            <option value="onnx">ONNX</option>
-        </select>
+        {{ form.fileTraining.label_tag }} {{ form.fileTraining }}
+        {{ form.dataFile.label_tag }} {{ form.dataFile }}
+        {{ form.modelType.label_tag }} {{ form.modelType }}
+        {{ form.countryIsoCode.label_tag }} {{ form.countryIsoCode }}
+       
         <input type="submit" value="Upload">
     </section>
 </form>
