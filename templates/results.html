@@ -125,7 +125,7 @@
         <th>Run id</th>
         <th>Energy consumed</th>
         <th>Duration</th>
-        <th>RAM Power</th>
+        <th>RAM energy</th>
     </tr>
     {% for row in data %}
     <tr>
@@ -133,7 +133,7 @@
         <td>{{ row.run_id }}</td>
         <td>{{ row.energy_consumed }}</td>
         <td>{{ row.duration }}</td>
-        <td>{{ row.ram_power }}</td>
+        <td>{{ row.ram_energy }}</td>
     </tr>
     {% endfor %}
 </table>

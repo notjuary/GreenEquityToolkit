@@ -235,7 +235,7 @@ def machineLearningTraining(request):
                                 'run_id':row['run_id'],
                                 'energy_consumed': row['energy_consumed'],
                                 'duration': row['duration'],
-                                'ram_power': row['ram_power'],
+                                'ram_energy': row['ram_energy'],
                             })
                 else:
                     print(f"CSV file not found: {csv_file_path}")
@@ -372,7 +372,7 @@ def uploadFile(request):
                             'run_id': row['run_id'],
                             'energy_consumed': row['energy_consumed'],
                             'duration': row['duration'],
-                            'ram_power': row['ram_power'],
+                            'ram_energy': row['ram_energy'],
                         })
             else:
                 print(f"CSV file not found: {csv_file_path}")
