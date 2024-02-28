@@ -1,5 +1,6 @@
 import json
 
+import joblib
 import pandas as pd
 import yaml
 from django.http import HttpResponse
@@ -24,6 +25,7 @@ import csv
 import onnxruntime as ort
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+import plotly.express as px
 
 output_dir = '.'
 output_file = 'emissions.csv'
@@ -128,7 +130,7 @@ def evaluate(eval_pred):
     return compute_metrics(pred, labels)
 
 
-#Function for modelView.html form processing for tracking pre-trained models
+# Function for modelView.html form processing for tracking pre-trained models
 def machineLearningTraining(request):
     countries = request.session.get('countries', None)
 
@@ -138,26 +140,26 @@ def machineLearningTraining(request):
         if form.is_valid():
             print(form.cleaned_data)
             # Selection from available pre-trained models.
-            modelTypeTrained=form.cleaned_data['modelTypeTrained']
-            #Selecting the preloaded ISO code of the downloaded JSON file from CodeCarbon's GitHub repo
-            countryIsoCode=form.cleaned_data['countryIsoCode']
+            modelTypeTrained = form.cleaned_data['modelTypeTrained']
+            # Selecting the preloaded ISO code of the downloaded JSON file from CodeCarbon's GitHub repo
+            countryIsoCode = form.cleaned_data['countryIsoCode']
             print(str(countryIsoCode))
             print(form.cleaned_data)
 
-            if modelTypeTrained=='bert-base-uncased':
+            if modelTypeTrained == 'bert-base-uncased':
                 try:
-                    #Get tokenizer and the pre-trained model.
-                    tokenizer=AutoTokenizer.from_pretrained(modelTypeTrained)
-                    model=AutoModelForSequenceClassification.from_pretrained(modelTypeTrained)
+                    # Get tokenizer and the pre-trained model.
+                    tokenizer = AutoTokenizer.from_pretrained(modelTypeTrained)
+                    model = AutoModelForSequenceClassification.from_pretrained(modelTypeTrained)
                 except Exception as e:
-                    errore=f"Error when loading model or tokenizer: {str(e)}"
-                    messages.error(request,errore)
+                    errore = f"Error when loading model or tokenizer: {str(e)}"
+                    messages.error(request, errore)
                     print(errore)
                     context = {
                         'errore': errore,
                     }
-                    return render(request, '404.html',context)
-            elif modelTypeTrained=='distilbert-base-uncased':
+                    return render(request, '404.html', context)
+            elif modelTypeTrained == 'distilbert-base-uncased':
                 try:
                     # Get tokenizer and the pre-trained model
                     tokenizer = DistilBertTokenizer.from_pretrained(modelTypeTrained)
@@ -171,9 +173,11 @@ def machineLearningTraining(request):
                     }
                     return render(request, '404.html', context)
             try:
-                #Load dataset GLUE MRPC
-                dataset=load_dataset('glue','mrpc')
-                encoded_dataset=dataset.map(lambda examples: tokenizer(examples['sentence1'],examples['sentence2'],truncation=True,padding='max_length'),batched=True)
+                # Load dataset GLUE MRPC
+                dataset = load_dataset('glue', 'mrpc')
+                encoded_dataset = dataset.map(
+                    lambda examples: tokenizer(examples['sentence1'], examples['sentence2'], truncation=True,
+                                               padding='max_length'), batched=True)
             except Exception as e:
                 errore = f"Error while loading dataset: {str(e)}"
                 messages.error(request, errore)
@@ -194,7 +198,8 @@ def machineLearningTraining(request):
 
             try:
                 # Train the model on the dataset
-                training_args = TrainingArguments("test_trainer", per_device_train_batch_size=16, per_device_eval_batch_size=64,
+                training_args = TrainingArguments("test_trainer", per_device_train_batch_size=16,
+                                                  per_device_eval_batch_size=64,
                                                   num_train_epochs=1, weight_decay=0.01, evaluation_strategy="epoch")
                 trainer = Trainer(
                     model=model,
@@ -220,47 +225,63 @@ def machineLearningTraining(request):
                 # Stop emissioni del tracker
                 tracker.stop()
 
-                dataResults = []
-                # Check if the file has been created
-                csv_file_path = os.path.join(output_dir, output_file)
-                if os.path.isfile(csv_file_path):
-                    print(f"CSV file created: {csv_file_path}")
+            dataResults = []
+            # Check if the file has been created
+            csv_file_path = os.path.join(output_dir, output_file)
+            if os.path.isfile(csv_file_path):
+                print(f"CSV file created: {csv_file_path}")
 
-                    with open(csv_file_path, 'r') as csvfile:
-                        csv_reader = csv.DictReader(csvfile, delimiter=',')
-                        for row in csv_reader:
-                            print(row)
-                            dataResults.append({
-                                'timestamp':row['timestamp'],
-                                'run_id':row['run_id'],
-                                'energy_consumed': row['energy_consumed'],
-                                'duration': row['duration'],
-                                'ram_energy': row['ram_energy'],
-                            })
-                else:
-                    print(f"CSV file not found: {csv_file_path}")
+                with open(csv_file_path, 'r') as csvfile:
+                    csv_reader = csv.DictReader(csvfile, delimiter=',')
+                    for row in csv_reader:
+                        print(row)
+                        dataResults.append({
+                            'timestamp': row['timestamp'],
+                            'run_id': row['run_id'],
+                            'energy_consumed': row['energy_consumed'],
+                            'duration': row['duration'],
+                            'ram_energy': row['ram_energy'],
+                        })
+            else:
+                print(f"CSV file not found: {csv_file_path}")
 
-                messages.success(request, "Processing successfully completed!")
-                return render(request, 'results.html', {'data': dataResults})
+            for item in dataResults:
+                item['energy_consumed'] = pd.to_numeric(item['energy_consumed'], errors='coerce')
+
+            # Creates bubble sort with metrics taken from CodeCarbon
+            fig = px.scatter(
+                dataResults,
+                x="timestamp",
+                y="run_id",
+                size="energy_consumed",  # Size of bubbles represents energy consumed
+                color="duration",  # Color of bubbles represents duration
+                hover_data=["ram_energy"]  # Show RAM energy on hover
+            )
+            # Graph creation and forwarding to the template results in JSON format
+            fig.update_layout(title_text="Emissions result",
+                              xaxis_title="Timestamp",
+                              yaxis_title="Run ID")
+
+            messages.success(request, "Processing successfully completed!")
+            return render(request, 'results.html', {'data': dataResults, 'fig': fig.to_json()})
 
         else:
             print(form.errors)
 
     return render(request, '404.html')
 
-#Function for processing the trainingFile.html form for tracking with CodeCarbon the models uploaded by the user
+
+# Function for processing the trainingFile.html form for tracking with CodeCarbon the models uploaded by the user
 def uploadFile(request):
     countries = request.session.get('countries', None)
+    sess = None
 
     if request.method == 'POST':
-        form = FileTraniningForm(request.POST, request.FILES,countries=countries)
+        form = FileTraniningForm(request.POST, request.FILES, countries=countries)
         if form.is_valid():
             file = form.cleaned_data['fileTraining']
             dataFile = form.cleaned_data['dataFile']
-            modelType = form.cleaned_data['modelType']
             countryIsoCode = form.cleaned_data['countryIsoCode']
-            print(str(countryIsoCode))
-            print(form.cleaned_data)
 
             # Verify data format
             if not dataFile.name.endswith(('.csv', '.xlsx', '.xls', '.json', '.yaml')):
@@ -280,16 +301,23 @@ def uploadFile(request):
 
             # Upload the template
             try:
-                if modelType == 'tensorflow':
-                    model = tensorflow.keras.models.load_model(temp_file_path)
-                elif modelType == 'pytorch':
-                    model = torch.load(temp_file_path)
-                elif modelType == 'onnx':
-                    model = onnx.load(temp_file_path)
-                    sess = ort.InferenceSession(model.SerializeToString())
+                model = joblib.load(temp_file_path)  # Load the model with joblib
+                modelType = None
+
+                # Determine the library of the model
+                if isinstance(model, sklearn.base.BaseEstimator):
+                    modelType = 'sklearn'
+                elif isinstance(model, tensorflow.python.keras.engine.training.Model):
+                    modelType = 'tensorflow'
+                elif isinstance(model, torch.nn.modules.module.Module):
+                    modelType = 'pytorch'
+                elif isinstance(model, onnx.onnx_ml_pb2.ModelProto):
+                    modelType = 'onnx'
+
                 else:
                     raise ValueError("Model type not supported")
-                print("The model was loaded correctly.")
+
+                print(f"The model was loaded correctly. Model type: {modelType}")
             except Exception as e:
                 errore = f"Error while loading the model: {str(e)}"
                 messages.error(request, errore)
@@ -313,7 +341,7 @@ def uploadFile(request):
                     raise ValueError("Data file type not supported")
                 print("The data file was read correctly.")
             except Exception as e:
-                errore = "Error while reading the data file: "+ str(e)
+                errore = "Error while reading the data file: " + str(e)
                 messages.error(request, errore)
                 print(errore)
                 context = {
@@ -323,16 +351,16 @@ def uploadFile(request):
 
                 # Start monitoring with CodeCarbon
             tracker = OfflineEmissionsTracker(
-                    country_iso_code=countryIsoCode,
-                    output_file=output_file,
-                    output_dir=output_dir
+                country_iso_code=countryIsoCode,
+                output_file=output_file,
+                output_dir=output_dir
             )
 
             tracker.start()
 
             # Run the model
             try:
-                if modelType=='sklearn' and isinstance(model, sklearn.base.BaseEstimator):
+                if modelType == 'sklearn' and isinstance(model, sklearn.base.BaseEstimator):
                     predictions = model.predict(data)
                 elif modelType == 'tensorflow' and isinstance(model, tensorflow.python.keras.engine.training.Model):
                     predictions = model.predict(data)
@@ -352,12 +380,12 @@ def uploadFile(request):
                 context = {
                     'errore': errore,
                 }
-                return render(request, '404.html',context)
+                return render(request, '404.html', context)
             finally:
-                #Stop emissioni del tracker
+                # Stop emissioni del tracker
                 tracker.stop()
 
-            dataResults=[]
+            dataResults = []
             # Check if the file has been created
             csv_file_path = os.path.join(output_dir, output_file)
             if os.path.isfile(csv_file_path):
@@ -377,9 +405,28 @@ def uploadFile(request):
             else:
                 print(f"CSV file not found: {csv_file_path}")
 
+            for item in dataResults:
+                item['energy_consumed'] = pd.to_numeric(item['energy_consumed'], errors='coerce')
+
+                # Creates bubble sort with metrics taken from CodeCarbon
+            fig = px.scatter(
+                dataResults,
+                x="timestamp",
+                y="run_id",
+                size="energy_consumed",  # Size of bubbles represents energy consumed
+                color="duration",  # Color of bubbles represents duration
+                hover_data=["ram_energy"]  # Show RAM energy on hover
+            )
+
+            #Graph creation and forwarding to the template results in JSON format
+            fig.update_layout(title_text="Emissions result",
+                              xaxis_title="Timestamp",
+                              yaxis_title="Run ID")
+
             messages.success(request, "Processing successfully completed!")
-            os.remove(temp_file_path) # Remove the temporary file
-            return render(request, 'results.html',{'data':dataResults})
+            return render(request, 'results.html', {'data': dataResults, 'fig': fig.to_json()})
+            os.remove(temp_file_path)  # Remove the temporary file
+
         else:
             print(form.errors)
             errore = "Error loading file"
@@ -391,5 +438,3 @@ def uploadFile(request):
             return render(request, '404.html', context)
     else:
         return render(request, 'trainingFile.html')
-
-

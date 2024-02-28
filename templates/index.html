@@ -61,140 +61,163 @@ footer {
   text-align: center;
 }
 
-/* Sidebar and Sidebar Menu CSS */
-.sidebar {
-  height: 100%;
-  width: 0;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
+/* Navbar and Navbar Menu CSS */
+.navbar {
+  overflow: hidden;
   background-color: #48a363;
-  overflow-x: hidden;
-  transition: 0.5s;
-  padding-top: 60px;
 }
 
-.sidebar a {
-  padding: 8px 8px 8px 32px;
-  text-decoration: none;
-  font-size: 25px;
-  color: #f0f1f1;
+.navbar a {
+  float: left;
   display: block;
-  transition: 0.3s;
+  color: #f0f1f1;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
 }
 
-.sidebar a:hover {
-  color: #f1f1f1;
-}
-
-.sidebar .closebtn {
-  position: absolute;
-  top: 0;
-  right: 25px;
-  font-size: 36px;
-  margin-left: 50px;
-}
-
-.openbtn {
-  font-size: 20px;
-  cursor: pointer;
+.navbar a:hover {
   background-color: #71b084;
   color: #f0f1f1;
-  padding: 10px 15px;
+}
+
+.dropdown {
+  float: left;
+  overflow: hidden;
+}
+
+.dropdown .dropbtn {
+  font-size: 17px;  
   border: none;
+  outline: none;
+  color: #f0f1f1;
+  padding: 14px 16px;
+  background-color: inherit;
+  font-family: inherit;
+  margin: 0;
 }
 
-.openbtn:hover {
+.navbar a:hover, .dropdown:hover .dropbtn {
   background-color: #71b084;
 }
 
-#main {
-  transition: margin-left .5s;
-  padding: 16px;
-}
-
-.submenu {
+.dropdown-content {
   display: none;
-  background-color: #71b084;
-}
-
-.sidebar a.submenu-btn {
-  position: relative;
-}
-
-.sidebar a.submenu-btn::after {
-  content: '▶';
   position: absolute;
-  right: 20px;
+  background-color: #71b084;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
 }
 
-.sidebar a.submenu-btn.active::after {
-  content: '▼';
+.dropdown-content a {
+  float: none;
+  color: #f0f1f1;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
 }
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.box {
+  border: 1px solid #000;
+  padding: 20px;
+  margin: 20px auto;
+     max-width: 800px; 
+  border-radius: 10px;
+}
+
+.box h3 {
+  margin-top: 0;
+}
+
+.box a {
+  display: inline-block; 
+  margin-top: 20px; 
+  background-color: #48a363;
+  color: #fff;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 10px; 
+  text-align: center; 
+}
+
+.box .button-container {
+  text-align: center; 
+}
+
 </style>
 </head>
 <body>
   <header>
     <h1>Sustainability toolkit</h1>
   </header>
-  <div id="mySidebar" class="sidebar">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-    <a href="/" class="submenu-btn">Home</a>
-    <a href="#" class="submenu-btn">Social Sustainability</a>
-    <div class="submenu">
-      <a href="#">Submenu 1</a>
-      <a href="#">Submenu 2</a>
-    </div>
-    <a href="#" class="submenu-btn">Environmental Sustainability</a>
-    <div class="submenu">
-      <a href="/sostenibilita/trainingFile">Training File</a>
-      <a href="sostenibilita/modelView">Training Machine Learning</a>
-    </div>
+  <div class="navbar">
+    <a href="/">Home</a>
+    <div class="dropdown">
+      <button class="dropbtn">Social Sustainability 
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown-content">
+        <a href="#">Submenu 1</a>
+        <a href="#">Submenu 2</a>
+      </div>
+    </div> 
+    <div class="dropdown">
+      <button class="dropbtn">Environmental Sustainability 
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown-content">
+        <a href="/sostenibilita/trainingFile">Training File</a>
+        <a href="sostenibilita/modelView">Training Machine Learning</a>
+      </div>
+    </div> 
     <a href="#">About</a>
   </div>
-  <div id="main">
-    <button class="openbtn" onclick="openNav()">☰</button>  
-    <main>
-      <section class="introduzione">
-        <h2>What does the sustainability tool do?</h2>
-        <p>
-          Create sustainable, equitable and powerful machine learning models. Our tool helps you optimize energy efficiency, promote equity, and prevent discrimination, for truly cutting-edge ML models.
-        </p>
-        <p>
-         The tool may be able to help you to monitor energy aspects, enabling you to improve more the interaction between energy efficiency and other controls to realize of efficient and environmentally sustainable ML models. 
-            In addition to considering aspects of environmental sustainability, the tool can help you to operationalize equity and avoid all forms of discrimination, 
-            consolidating more into your ML systems so that they are fair, equitable, moreover efficient.
-        </p>
-        <a href="#">Scopri di più</a>
-      </section>
-    </main>
+  <main>
+    <section class="introduzione">
+      <h2>What does the sustainability tool do?</h2>
+      <p>
+        Create sustainable, equitable and powerful machine learning models. Our tool helps you optimize energy efficiency, promote equity, and prevent discrimination, for truly cutting-edge ML models.
+      </p>
+      <p>
+       The tool may be able to help you to monitor energy aspects, enabling you to improve more the interaction between energy efficiency and other controls to realize of efficient and environmentally sustainable ML models. 
+          In addition to considering aspects of environmental sustainability, the tool can help you to operationalize equity and avoid all forms of discrimination, 
+          consolidating more into your ML systems so that they are fair, equitable, moreover efficient.
+      </p>
+      
+    </section>
+    
+    <div class="box">
+    <h3>Environmental Sustainability</h3>
+    <p>In this section you can monitor the energy aspects of ML models, enabling you to improve the interaction between energy efficiency and other controls to achieve efficient and environmentally sustainable ML models.
+You can do the monitoring with CodeCarbon, depending on the available pre-trained ML models or by uploading ML model related files.</p>
+    <a href="/sostenibilita/trainingFile">Training File</a>
+        <a href="/sostenibilita/modelView">Training Machine Learning</a>
   </div>
+
+  
+  <div class="box">
+    <h3>Social Sustainability</h3>
+    <p>Descrizione della sostenibilità sociale.</p>
+    <a href="/sociale">Scopri di più</a>
+  </div>
+</main>  
+  
+  </main>
   <footer>
-    <p>Copyright © 2023</p>
+    <p>Francesco Alfonso Barlotti's three-year thesis project in computer science at the University of Salerno with SeSa Lab</p>
   </footer>
-<script>
-function openNav() {
-  document.getElementById("mySidebar").style.width = "250px";
-  document.getElementById("main").style.marginLeft = "250px";
-}
-
-function closeNav() {
-  document.getElementById("mySidebar").style.width = "0";
-  document.getElementById("main").style.marginLeft= "0";
-}
-
-var submenuBtns = document.querySelectorAll('.submenu-btn');
-for (let i = 0; i < submenuBtns.length; i++) {
-  submenuBtns[i].addEventListener('click', function(e) {
-    var submenu = this.nextElementSibling;
-    if (submenu.style.display === "block") {
-      submenu.style.display = "none";
-    } else {
-      submenu.style.display = "block";
-    }
-  });
-}
-</script>
 </body>
 </html>
+

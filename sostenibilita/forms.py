@@ -18,15 +18,8 @@ def validate_data_file_extension(value):
         raise ValidationError(u'Unsupported file extension for the data file.')
 
 class FileTraniningForm(forms.Form):
-    MODEL_CHOICES = [
-        ('sklearn', 'Scikit-learn'),
-        ('tensorflow', 'TensorFlow'),
-        ('pytorch', 'PyTorch'),
-        ('onnx','ONNX')
-    ]
     fileTraining=forms.FileField(label="Select the ML model file to be uploaded ",validators=[validate_model_file_extension])
     dataFile=forms.FileField(label="Selects the data file on which the model is trained ",validators=[validate_data_file_extension])
-    modelType = forms.ChoiceField(choices=MODEL_CHOICES, label="Select the type of model ")
     countryIsoCode = forms.ChoiceField(label="Select ISO Code of the country where the experiment is being run ",required=True)
     def __init__(self, *args, **kwargs):
         country_choices = kwargs.pop('countries', [])
