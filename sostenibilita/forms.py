@@ -35,6 +35,14 @@ class FileTraniningForm(forms.Form):
 
         return countryIsoCode
 
+
+class FileSocialForm(forms.Form):
+    fileModel=forms.FileField(label="Select the ML model file to be uploaded ",validators=[validate_model_file_extension])
+    datasetFile=forms.FileField(label="Selects the data file on which the model is trained ",validators=[validate_data_file_extension])
+    protectedAttribute = forms.CharField(label="Enter the name of the protected attribute column")
+    labelAttribute = forms.CharField(label="Enter the name of the label column")
+
+
 class ModelTrainedForm(forms.Form):
     MODEL_CHOICES = [
         ('bert-base-uncased', 'BERT'),
@@ -59,3 +67,10 @@ class ModelTrainedForm(forms.Form):
         return countryIsoCode
 
 
+class ModelTrainedSocialForm(forms.Form):
+    MODEL_CHOICES = [
+        ('bert-base-uncased', 'BERT'),
+        ('distilbert-base-uncased','DistilBERT'),
+    ]
+
+    modelTypeSocial = forms.ChoiceField(choices=MODEL_CHOICES, label="Select the type of model pre-trained ")

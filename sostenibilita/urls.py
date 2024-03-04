@@ -6,6 +6,9 @@ urlpatterns = [
     path('sostenibilita/trainingFile', views.trainingFile, name='trainingFile'),
     path('sostenibilita/uploadFile', views.uploadFile, name='uploadFile'),
     path('sostenibilita/machineLearningTraining',views.machineLearningTraining, name='machineLearningTraining'),
-    path('sostenibilita/modelView', views.modelView, name='modelView')
+    path('sostenibilita/modelView', views.modelView, name='modelView'),
+    path('sostenibilita/modelsPreaddestratedSocial',views.modelsPreaddestratedSocial, name='modelsPreaddestratedSocial'),
+    path('sostenibilita/modelsUploadFileSocial', views.modelsUploadFileSocial, name='modelsUploadFileSocial'),
+
 
 ]
