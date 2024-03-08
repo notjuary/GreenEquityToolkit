@@ -5,16 +5,17 @@ import pandas as pd
 import yaml
 from aif360.datasets import BinaryLabelDataset
 from aif360.metrics import ClassificationMetric, BinaryLabelDatasetMetric
-from django.http import HttpResponse
-from django.shortcuts import render, HttpResponseRedirect
+from django.http import HttpResponse, FileResponse
+from django.shortcuts import render, HttpResponseRedirect, redirect
 from codecarbon import EmissionsTracker
-
+from pprint import pprint
 from django.urls import reverse
 from django.contrib import messages
 from codecarbon import OfflineEmissionsTracker
 from sklearn.metrics._classification import precision_score, recall_score, f1_score
 
-from sostenibilita.forms import FileTraniningForm, ModelTrainedForm, ModelTrainedSocialForm, FileSocialForm
+from sostenibilita.forms import FileTraniningForm, ModelTrainedForm, ModelTrainedSocialForm, FileSocialForm, \
+    UploadDatasetForm,  SelectProtectedAttributesForm
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trainer, TrainingArguments, \
     glue_compute_metrics, training_args, DistilBertTokenizer, DistilBertForSequenceClassification
 from datasets import load_dataset
@@ -30,6 +31,9 @@ import onnxruntime
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 import plotly.express as px
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
 
 output_dir = '.'
 output_file = 'emissions.csv'
@@ -38,17 +42,107 @@ output_file = 'emissions.csv'
 def index(request):
     return render(request, 'index.html')
 
+#Function for managing the download of the emissions.csv file processed by CodeCarbon
+def downloadFileEmission(request):
+    response=FileResponse(open('emissions.csv', 'rb'),content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="emission.csv"'
+
+    return response
+
+
 # Redirection function to the section for social monitoring pre-trained models
 def modelsPreaddestratedSocial(request):
     # Create an instance of form.
     form=ModelTrainedSocialForm()
     return render(request, 'sustainabilitysocialemodel.html',{'form': form})
 
-# Redirect function to the template for uploading files required for social sustainability monitoring
-def modelsUploadFileSocial(request):
-    # Create an instance of form.
-    form=FileSocialForm()
-    return render(request, 'socialUpdateFile.html',{'form': form})
+#Redirect function for loading the dataset
+def redirectUploadDataset(request):
+    form=UploadDatasetForm()
+    return render(request, 'uploadDataset.html', {'form': form})
+
+#Function that reads the contents of the dataset and identifies protected attributes
+def uploadDataset(request):
+    if request.method == 'POST':
+        form = UploadDatasetForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Save dataset in session and columns
+            dataFile = form.cleaned_data['datasetFile']
+
+            # Verify data format
+            if not dataFile.name.endswith(('.csv', '.xlsx', '.xls', '.json', '.yaml')):
+                errore = "Data file type not supported"
+                messages.error(request, errore)
+                print(errore)
+                context = {
+                    'errore': errore,
+                }
+                return render(request, '404.html', context)
+
+
+                # Read data from the dataset
+            try:
+                if dataFile.name.endswith('.csv'):
+                    data = pd.read_csv(io.StringIO(dataFile.read().decode('utf-8')))
+                    #Setting dataset columns in checkboxes to define which protected attributes to consider
+                    columns= list(data.columns)
+                    print(columns)
+                    request.session['columns'] = columns
+                    uploadForm = FileSocialForm()
+                    select_form = SelectProtectedAttributesForm(columns=columns)
+                    return render(request, 'socialUpdateFile.html',{'uploadForm':uploadForm,'selectForm':select_form})
+
+
+                elif dataFile.name.endswith('.xlsx') or dataFile.name.endswith('.xls'):
+                    data = pd.read_excel(io.BytesIO(dataFile.read()))
+                    # Setting dataset columns in checkboxes to define which protected attributes to consider
+                    columns = list(data.columns)
+                    print(columns)
+                    request.session['columns'] = columns
+                    uploadForm = FileSocialForm()
+
+                    select_form = SelectProtectedAttributesForm(columns=columns)
+                    return render(request, 'socialUpdateFile.html',
+                                  {'uploadForm': uploadForm, 'selectForm': select_form})
+
+                elif dataFile.name.endswith('.json'):
+                    data = pd.read_json(io.StringIO(dataFile.read().decode('utf-8')))
+                    # Setting dataset columns in checkboxes to define which protected attributes to consider
+                    columns = list(data.columns)
+                    print(columns)
+                    uploadForm = FileSocialForm()
+                    request.session['columns'] = columns
+                    select_form = SelectProtectedAttributesForm(columns=columns)
+                    return render(request, 'socialUpdateFile.html',
+                                  {'uploadForm': uploadForm, 'selectForm': select_form})
+
+                elif dataFile.name.endswith('.yaml'):
+                    data = pd.json_normalize(yaml.safe_load(io.StringIO(dataFile.read().decode('utf-8'))))
+                    # Setting dataset columns in checkboxes to define which protected attributes to consider
+                    columns = list(data.columns)
+                    print(columns)
+                    request.session['columns'] = columns
+                    uploadForm = FileSocialForm()
+                    select_form = SelectProtectedAttributesForm(columns=columns)
+                    return render(request, 'socialUpdateFile.html',
+                                  {'uploadForm': uploadForm, 'selectForm': select_form})
+
+                else:
+                    raise ValueError("Data file type not supported")
+
+                print("The data file was read correctly.")
+            except Exception as e:
+                errore = "Error while reading the data file: " + str(e)
+                messages.error(request, errore)
+                print(errore)
+                context = {
+                    'errore': errore,
+                }
+                return render(request, '404.html', context)
+    else:
+        return render(request, '404.html')
+
+
 
 
 # Redirection function for loading model and dataset files
@@ -258,29 +352,34 @@ def machineLearningTraining(request):
                                 'energy_consumed': row['energy_consumed'],
                                 'duration': row['duration'],
                                 'ram_energy': row['ram_energy'],
+                                'cpu_energy':row['cpu_energy'],
+                                'gpu_energy':row['gpu_energy']
+
                             })
                 else:
                     print(f"CSV file not found: {csv_file_path}")
 
-                for item in dataResults:
-                    item['energy_consumed'] = pd.to_numeric(item['energy_consumed'], errors='coerce')
+                df=pd.DataFrame(dataResults)
 
-                # Creates bubble sort with metrics taken from CodeCarbon
-                fig = px.scatter(
-                    dataResults,
-                    x="timestamp",
-                    y="run_id",
-                    size="energy_consumed",  # Size of bubbles represents energy consumed
-                    color="duration",  # Color of bubbles represents duration
-                    hover_data=["ram_energy"]  # Show RAM energy on hover
-                )
-                # Graph creation and forwarding to the template results in JSON format
-                fig.update_layout(title_text="Emissions result",
-                                  xaxis_title="Timestamp",
-                                  yaxis_title="Run ID")
+                for column in ['energy_consumed', 'duration', 'ram_energy', 'cpu_energy', 'gpu_energy']:
+                    df[column] = df[column].astype(float)
+
+                # Create violin plot
+                plt.figure(figsize=(10, 6))
+                sns.violinplot(data=df[['energy_consumed', 'ram_energy', 'cpu_energy', 'gpu_energy']])
+                plt.title('Violin Plot of Energy Metrics')
+                plt.ylabel('Energy consumed')
+
+                new_folder_path = 'static/img'
+
+                # Create the new folder if it does not already exist.
+                os.makedirs(new_folder_path, exist_ok=True)
+
+                # Save the image in the new folder.
+                plt.savefig(os.path.join(new_folder_path, 'violin_plot.png'))
 
                 messages.success(request, "Processing successfully completed!")
-                return render(request, 'results.html', {'data': dataResults, 'fig': fig.to_json()})
+                return render(request, 'results.html', {'image_path': '/img/violin_plot.png'})
         else:
             print(form.errors)
 
@@ -421,26 +520,28 @@ def uploadFile(request):
             else:
                 print(f"CSV file not found: {csv_file_path}")
 
-            for item in dataResults:
-                item['energy_consumed'] = pd.to_numeric(item['energy_consumed'], errors='coerce')
+            df = pd.DataFrame(dataResults)
 
-                # Creates bubble sort with metrics taken from CodeCarbon
-            fig = px.scatter(
-                dataResults,
-                x="timestamp",
-                y="run_id",
-                size="energy_consumed",  # Size of bubbles represents energy consumed
-                color="duration",  # Color of bubbles represents duration
-                hover_data=["ram_energy"]  # Show RAM energy on hover
-            )
+            for column in ['energy_consumed', 'duration', 'ram_energy', 'cpu_energy', 'gpu_energy']:
+                df[column] = df[column].astype(float)
 
-            #Graph creation and forwarding to the template results in JSON format
-            fig.update_layout(title_text="Emissions result",
-                              xaxis_title="Timestamp",
-                              yaxis_title="Run ID")
+            # Create violin plot
+            plt.figure(figsize=(10, 6))
+            sns.violinplot(data=df[['energy_consumed', 'ram_energy', 'cpu_energy', 'gpu_energy']])
+            plt.title('Violin Plot of Energy Metrics')
+            plt.ylabel('Energy consumed')
+
+            new_folder_path = 'static/img'
+
+            # Create the new folder if it does not already exist.
+            os.makedirs(new_folder_path, exist_ok=True)
+
+            # Save the image in the new folder.
+            plt.savefig(os.path.join(new_folder_path, 'violin_plot.png'))
 
             messages.success(request, "Processing successfully completed!")
-            return render(request, 'results.html', {'data': dataResults, 'fig': fig.to_json()})
+            return render(request, 'results.html', {'image_path': '/img/violin_plot.png'})
+
             os.remove(temp_file_path)  # Remove the temporary file
 
         else:
@@ -561,16 +662,21 @@ def uploadFile(request):
 # Function for monitoring social sustainability using aif360 with identified metrics
 def uploadFileSocial(request):
     sess = None
-    
+
     if request.method == 'POST':
-        form = FileSocialForm(request.POST)
-        if form.is_valid():
+
+        form = FileSocialForm(request.POST,request.FILES)
+        formAttributes=SelectProtectedAttributesForm(request.POST,columns=request.session.get('columns'))
+
+        if form.is_valid() and formAttributes.is_valid():
+
             file = form.cleaned_data['fileModel']
             dataFile = form.cleaned_data['datasetFile']
-            protectedAttribute = form.cleaned_data['protectedAttribute']
             labelAttribute = form.cleaned_data['labelAttribute']
+            protectedAttributes = formAttributes.cleaned_data['protected_attributes']
 
-            if not (protectedAttribute and labelAttribute):
+            #verification of protected attribute selections and labels
+            if not (protectedAttributes and labelAttribute):
                 errore = "The fields of the protected attribute column and label column cannot be empty"
                 messages.error(request, errore)
                 print(errore)
@@ -657,7 +763,7 @@ def uploadFileSocial(request):
                 elif modelType == 'onnx':
                     input_name = sess.get_inputs()[0].name
                     result = sess.run(None, {input_name: data.values.astype('float32')})
-                    predictions =result[0]
+                    predictions = result[0]
                 else:
                     raise ValueError("Model type not supported")
 
@@ -677,14 +783,14 @@ def uploadFileSocial(request):
                     raise ValueError("The data file is empty")
 
                 # Verify that the DataFrame contains the protected attribute and the label
-                if protectedAttribute not in data.columns or labelAttribute not in data.columns:
+                if protectedAttributes not in data.columns or labelAttribute not in data.columns:
                     raise ValueError("The data file does not contain the necessary columns")
 
                 # Checks that the protected attribute and label contain only valid values
-                if not all(data[protectedAttribute].notna()) or not all(data[labelAttribute].notna()):
+                if not all(data[protectedAttributes].notna()) or not all(data[labelAttribute].notna()):
                     raise ValueError("The protected attribute or label contains invalid values")
 
-                #Verify that the predictions are the same length as the true labels
+                # Verify that the predictions are the same length as the true labels
                 if len(predictions) != len(data[labelAttribute]):
                     raise ValueError("The predictions are not the same length as the true labels")
 
@@ -692,7 +798,7 @@ def uploadFileSocial(request):
                 if not all(np.isfinite(predictions)):
                     raise ValueError("The predictions contain invalid values")
             except Exception as e:
-                errore="Error during data verification and validity: "+str(e)
+                errore = "Error during data verification and validity: " + str(e)
                 messages.error(request, errore)
                 print(errore)
 
@@ -703,11 +809,12 @@ def uploadFileSocial(request):
 
             try:
                 # Create an AIF360 Dataset object
-                dataset = BinaryLabelDataset(df=data, label_names=[labelAttribute], protected_attribute_names=[protectedAttribute])
+                dataset = BinaryLabelDataset(df=data, label_names=[labelAttribute],
+                                             protected_attribute_names=protectedAttributes)
 
                 # Calculate equity metrics.
-                metric = BinaryLabelDatasetMetric(dataset, unprivileged_groups=[{protectedAttribute: 0}],
-                                                  privileged_groups=[{protectedAttribute: 1}])
+                metric = BinaryLabelDatasetMetric(dataset, unprivileged_groups=[{protectedAttributes: 0}],
+                                                  privileged_groups=[{protectedAttributes: 1}])
                 mean_difference = metric.mean_difference()
 
                 # Calculate accuracy metrics.
@@ -719,12 +826,11 @@ def uploadFileSocial(request):
                 recall = recall_score(y_true, y_pred)
                 f1 = f1_score(y_true, y_pred)
 
-
                 dataset_pred = dataset.copy()
                 dataset_pred.labels = y_pred
                 classification_metric = ClassificationMetric(dataset, dataset_pred,
-                                                             unprivileged_groups=[{protectedAttribute: 0}],
-                                                             privileged_groups=[{protectedAttribute: 1}])
+                                                             unprivileged_groups=[{protectedAttributes: 0}],
+                                                             privileged_groups=[{protectedAttributes: 1}])
                 equal_opportunity_difference = classification_metric.equal_opportunity_difference()
                 average_odds_difference = classification_metric.average_odds_difference()
 
@@ -733,6 +839,17 @@ def uploadFileSocial(request):
                 precision = precision_score(data[labelAttribute], predictions)
                 recall = recall_score(data[labelAttribute], predictions)
                 f1 = f1_score(data[labelAttribute], predictions)
+
+                # Print metrics
+                print("Mean difference =", mean_difference)
+                print("Equal opportunity difference =", equal_opportunity_difference)
+                print("Average odds difference =", average_odds_difference)
+                print("Accuracy =", accuracy)
+                print("Precision =", precision)
+                print("Recall =", recall)
+                print("F1-score =", f1)
+                return render(request, 'resultsSocial.html')
+
             except Exception as e:
                 errore = "Error when calculating AIF360 metrics: " + str(e)
                 messages.error(request, errore)
@@ -743,11 +860,16 @@ def uploadFileSocial(request):
                 }
                 return render(request, '404.html', context)
 
-            # Print metrics
-            print("Mean difference =", mean_difference)
-            print("Equal opportunity difference =", equal_opportunity_difference)
-            print("Average odds difference =", average_odds_difference)
-            print("Accuracy =", accuracy)
-            print("Precision =", precision)
-            print("Recall =", recall)
-            print("F1-score =", f1)
+
+        else:
+            print(form.errors)
+            errore = str(form.errors)
+            context = {
+                'errore': errore,
+            }
+            return render(request, '404.html', context)
+    else:
+
+        #Redirects to the page for loading the dataset
+        form = UploadDatasetForm()
+        return render(request, 'uploadDataset.html', {'form': form})

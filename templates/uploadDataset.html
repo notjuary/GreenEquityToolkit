@@ -1,5 +1,8 @@
-
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload your dataset</title>
 <html lang="en">
 <head>
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
@@ -97,68 +100,21 @@
         input[type="submit"]:hover {
             background-color: #71b084;
         }
-
-        /* New table style */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #ccc;
-        }
-
-        th, td {
-            padding: 8px;
-            border: 1px solid #ccc;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-        
-        #emissions-plot {
-            width: 100%; 
-            height: 400px; 
-            margin: 20px auto; 
-        }
-        
-          img {
-            display: block;
-            max-width: 100%;
-            height: auto;
-            margin: 20px auto;
-        }
-          
-           a.download-button {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #000;
-            color: #fff;
-            text-decoration: none;
-            margin-top: 20px;
-            border-radius: 5px;  
-            display: block; 
-            margin-left: auto;
-               margin-right: auto;
-        }
-
-        a.download-button:hover {
-            background-color: #71b084;
-        }  
-          
     </style>
-     {% include 'menu.html' %}
+    {% include 'menu.html' %}
     <meta charset="UTF-8">
+    <title>Carica Modello ML</title>
+    <form action="/sostenibilita/uploadDataset" method="post" enctype="multipart/form-data">
+        <section class="introduzione">
+        {% csrf_token %}
+        <h2>Load the dataset of your machine learning model</h2>
+        <p>In this section you can evaluate the social sustainability of your ML models by uploading the ML model file and dataset, going to define the attribute set that may be protected .</p>
+        {{ form.datasetFile.label_tag }} {{ form.datasetFile }}
+        <input type="submit" value="Upload"> 
+        </section>
+    </form>    
 </head>
 <body>
-    {% load static %}
-    <img src="{% static image_path %}">
-    <section class="introduzione">
-        <p>
-            It is possible, below, to make the accurate download of the ascertained dataset
-        </p>
-         <a href="{% url 'downloadFileEmission' %}" class="download-button">Download full report</a>
-    </section>    
-       
-       
+
 </body>
 </html>

@@ -96,6 +96,18 @@
         input[type="submit"]:hover {
             background-color: #71b084;
         }
+        
+            
+    input[type="checkbox"] {
+        width: 20px; 
+        height: 20px;  
+        background-color: #eee; 
+    }
+
+    
+    input[type="checkbox"]:checked {
+        background-color: #48a363; 
+    }
     </style>
     {% include 'menu.html' %}
     <meta charset="UTF-8">
@@ -107,11 +119,12 @@
         {% csrf_token %}
         <h2>Upload ML model to evaluate social sustainability</h2>
         <p>In this section you can evaluate the social sustainability of your ML models by uploading the ML model file and dataset.</p>
-        {{ form.fileModel.label_tag }} {{ form.fileModel }}
-        {{ form.datasetModel.label_tag }} {{ form.datasetFile }}
-        {{ form.protectedAttribute.label_tag }} {{ form.protectedAttribute }}
-        {{ form.labelAttribute.label_tag }}{{ form.labelAttribute }}
-       
+        {{ uploadForm.fileModel.label_tag }} {{ uploadForm.fileModel }}
+        {{ uploadForm.datasetFile.label_tag }} {{ uploadForm.datasetFile }}
+        {{ uploadForm.labelAttribute.label_tag }}{{ uploadForm.labelAttribute }}
+        <label>Selects protected attributes to protect</label>
+        {{ selectForm.protected_attributes.label_tag }} {{ selectForm.protected_attributes }}
+
         <input type="submit" value="Upload">
     </section>
 </form>

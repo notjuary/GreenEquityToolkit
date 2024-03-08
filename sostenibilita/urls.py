@@ -8,7 +8,10 @@ urlpatterns = [
     path('sostenibilita/machineLearningTraining',views.machineLearningTraining, name='machineLearningTraining'),
     path('sostenibilita/modelView', views.modelView, name='modelView'),
     path('sostenibilita/modelsPreaddestratedSocial',views.modelsPreaddestratedSocial, name='modelsPreaddestratedSocial'),
-    path('sostenibilita/modelsUploadFileSocial', views.modelsUploadFileSocial, name='modelsUploadFileSocial'),
+    path('sostenibilita/uploadFileSocial', views.uploadFileSocial, name='uploadFileSocial'),
+    path('sostenibilita/uploadDataset',views.uploadDataset, name='uploadDataset'),
+    path('sostenibilita/redirectUploadDataset',views.redirectUploadDataset, name='redirectUploadDataset'),
+    path('sostenibilita/downloadFileEmission',views.downloadFileEmission, name='downloadFileEmission')
 
 
 ]
