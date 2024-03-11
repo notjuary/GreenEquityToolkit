@@ -15,7 +15,7 @@ from codecarbon import OfflineEmissionsTracker
 from sklearn.metrics._classification import precision_score, recall_score, f1_score
 
 from sostenibilita.forms import FileTraniningForm, ModelTrainedForm, ModelTrainedSocialForm, FileSocialForm, \
-    UploadDatasetForm,  SelectProtectedAttributesForm
+    UploadDatasetForm, SelectProtectedAttributesForm
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trainer, TrainingArguments, \
     glue_compute_metrics, training_args, DistilBertTokenizer, DistilBertForSequenceClassification
 from datasets import load_dataset
@@ -38,13 +38,15 @@ import matplotlib.pyplot as plt
 output_dir = '.'
 output_file = 'emissions.csv'
 
-#Homepage loading function
+
+# Homepage loading function
 def index(request):
     return render(request, 'index.html')
 
-#Function for managing the download of the emissions.csv file processed by CodeCarbon
+
+# Function for managing the download of the emissions.csv file processed by CodeCarbon
 def downloadFileEmission(request):
-    response=FileResponse(open('emissions.csv', 'rb'),content_type='text/csv')
+    response = FileResponse(open('emissions.csv', 'rb'), content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="emission.csv"'
 
     return response
@@ -53,15 +55,17 @@ def downloadFileEmission(request):
 # Redirection function to the section for social monitoring pre-trained models
 def modelsPreaddestratedSocial(request):
     # Create an instance of form.
-    form=ModelTrainedSocialForm()
-    return render(request, 'sustainabilitysocialemodel.html',{'form': form})
+    form = ModelTrainedSocialForm()
+    return render(request, 'sustainabilitysocialemodel.html', {'form': form})
 
-#Redirect function for loading the dataset
+
+# Redirect function for loading the dataset
 def redirectUploadDataset(request):
-    form=UploadDatasetForm()
+    form = UploadDatasetForm()
     return render(request, 'uploadDataset.html', {'form': form})
 
-#Function that reads the contents of the dataset and identifies protected attributes
+
+# Function that reads the contents of the dataset and identifies protected attributes
 def uploadDataset(request):
     if request.method == 'POST':
         form = UploadDatasetForm(request.POST, request.FILES)
@@ -79,18 +83,18 @@ def uploadDataset(request):
                 }
                 return render(request, '404.html', context)
 
-
                 # Read data from the dataset
             try:
                 if dataFile.name.endswith('.csv'):
                     data = pd.read_csv(io.StringIO(dataFile.read().decode('utf-8')))
-                    #Setting dataset columns in checkboxes to define which protected attributes to consider
-                    columns= list(data.columns)
+                    # Setting dataset columns in checkboxes to define which protected attributes to consider
+                    columns = list(data.columns)
                     print(columns)
                     request.session['columns'] = columns
                     uploadForm = FileSocialForm()
                     select_form = SelectProtectedAttributesForm(columns=columns)
-                    return render(request, 'socialUpdateFile.html',{'uploadForm':uploadForm,'selectForm':select_form})
+                    return render(request, 'socialUpdateFile.html',
+                                  {'uploadForm': uploadForm, 'selectForm': select_form})
 
 
                 elif dataFile.name.endswith('.xlsx') or dataFile.name.endswith('.xls'):
@@ -143,8 +147,6 @@ def uploadDataset(request):
         return render(request, '404.html')
 
 
-
-
 # Redirection function for loading model and dataset files
 def trainingFile(request):
     # Load the list of countries from the session, if available.
@@ -188,15 +190,15 @@ def modelView(request):
     # Load the list of countries from the session, if available.
     countries = request.session.get('countries', None)
 
-    dataLoad=False
+    dataLoad = False
 
     if countries is None:
         try:
-             # Read the JSON file
+            # Read the JSON file
             if os.path.exists('global_energy_mix.json'):
-                with open('global_energy_mix.json','r') as f:
-                     data = json.load(f)
-                     dataLoad=True
+                with open('global_energy_mix.json', 'r') as f:
+                    data = json.load(f)
+                    dataLoad = True
         except Exception as e:
             data = None
             errore = f"Error opening Json file: {str(e)}"
@@ -207,7 +209,6 @@ def modelView(request):
             }
             return render(request, '404.html', context)
 
-
     if dataLoad:
         # Create a list of tuples for the select field.
         countries = [(key, data[key]['country_name']) for key in data]
@@ -216,14 +217,14 @@ def modelView(request):
     # Save the list of countries in the session.
     request.session['countries'] = countries
 
-    #Create an instance of form.
-    form=ModelTrainedForm(countries=countries)
-    #Create an instance of form.
+    # Create an instance of form.
+    form = ModelTrainedForm(countries=countries)
+    # Create an instance of form.
     return render(request, 'modelView.html', {'form': form})
 
 
 # Function for defining the metrics of models pre-trained by Hugging Face
-def compute_metrics(preds,labels):
+def compute_metrics(preds, labels):
     predictions = preds.argmax(-1)
     precision, recall, f1, _ = precision_recall_fscore_support(labels, predictions, average='binary')
     acc = accuracy_score(labels, predictions)
@@ -233,6 +234,7 @@ def compute_metrics(preds,labels):
         'precision': precision,
         'recall': recall
     }
+
 
 # Wrapper function
 def evaluate(eval_pred):
@@ -352,14 +354,14 @@ def machineLearningTraining(request):
                                 'energy_consumed': row['energy_consumed'],
                                 'duration': row['duration'],
                                 'ram_energy': row['ram_energy'],
-                                'cpu_energy':row['cpu_energy'],
-                                'gpu_energy':row['gpu_energy']
+                                'cpu_energy': row['cpu_energy'],
+                                'gpu_energy': row['gpu_energy']
 
                             })
                 else:
                     print(f"CSV file not found: {csv_file_path}")
 
-                df=pd.DataFrame(dataResults)
+                df = pd.DataFrame(dataResults)
 
                 for column in ['energy_consumed', 'duration', 'ram_energy', 'cpu_energy', 'gpu_energy']:
                     df[column] = df[column].astype(float)
@@ -556,107 +558,174 @@ def uploadFile(request):
     else:
         return render(request, 'trainingFile.html')
 
-# def modelTrainedSustainabilitySocial(request):
-#     if request.method == 'POST':
-#         form=ModelTrainedSocialForm(request.POST)
-#         if form.is_valid():
-#             modelTypeSocial = form.cleaned_data['modelTypeSocial']
-#
-#         if modelTypeSocial=='distilbert-base-uncased':
-#             try:
-#                 # Get tokenizer and the pre-trained model
-#                 tokenizer = DistilBertTokenizer.from_pretrained(modelTypeSocial)
-#                 model = DistilBertForSequenceClassification.from_pretrained(modelTypeSocial)
-#             except Exception as e:
-#                 errore = f"Error while loading model or tokenizer: {str(e)}"
-#                 messages.error(request, errore)
-#                 print(errore)
-#                 context = {
-#                     'errore': errore,
-#                 }
-#                 return render(request, '404.html', context)
-#
-#             try:
-#                 # Load dataset reuters21578
-#                 dataset = load_dataset('reuters21578')
-#
-#                 # Preprocess the data
-#                 def preprocess_data(examples):
-#                     # Tokenize the text
-#                     encodings = tokenizer(examples['text'], truncation=True, padding=True)
-#                     # Convert the labels to integers
-#                     labels = [int(label) for label in examples['label']]
-#                     # Add the labels to the encodings
-#                     encodings['labels'] = labels
-#                     return encodings
-#
-#                 # Preprocess the training and test dataset
-#                 train_dataset = dataset['train'].map(preprocess_data, batched=True)
-#                 test_dataset = dataset['test'].map(preprocess_data, batched=True)
-#
-#                 # Define the training arguments
-#                 training_args = TrainingArguments(
-#                     output_dir='./results',  # output directory for the training results
-#                     num_train_epochs=3,  # total number of training epochs
-#                     per_device_train_batch_size=16,  # batch size for training
-#                     per_device_eval_batch_size=64,  # batch size for evaluation
-#                     warmup_steps=500,  # number of warmup steps
-#                     weight_decay=0.01,  # weight decay
-#                     logging_dir='./logs',  # output directory for the logs
-#                 )
-#
-#                 # Create the Trainer
-#                 trainer = Trainer(
-#                     model=model,  # the pre-trained model
-#                     args=training_args,  # training arguments
-#                     train_dataset=train_dataset,  # training dataset
-#                     eval_dataset=test_dataset  # evaluation dataset
-#                 )
-#
-#                 # Train the model
-#                 trainer.train()
-#
-#                 # Get the predictions
-#                 predictions = trainer.predict(test_dataset)
-#
-#                 # Convert the predictions and the test data into BinaryLabelDataset
-#                 test_bld = BinaryLabelDataset(df=test_dataset, label_names=['your_label'],
-#                                               protected_attribute_names=['your_protected_attribute'])
-#                 predictions_bld = BinaryLabelDataset(df=predictions, label_names=['your_label'],
-#                                                      protected_attribute_names=['your_protected_attribute'])
-#
-#                 # Create a ClassificationMetric
-#                 metric = ClassificationMetric(test_bld, predictions_bld,
-#                                               unprivileged_groups=[{'your_protected_attribute': 0}],
-#                                               privileged_groups=[{'your_protected_attribute': 1}])
-#
-#                 # Calculate the metrics
-#                 mean_difference = metric.mean_difference()
-#                 equal_opportunity_difference = metric.equal_opportunity_difference()
-#                 average_odds_difference = metric.average_odds_difference()
-#
-#                 # Calculate the accuracy metrics
-#                 accuracy = accuracy_score(test_dataset.labels, predictions.labels)
-#                 precision = precision_score(test_dataset.labels, predictions.labels)
-#                 recall = recall_score(test_dataset.labels, predictions.labels)
-#                 f1 = f1_score(test_dataset.labels, predictions.labels)
-#
-#                 # Print the metrics
-#                 print("Mean difference =", mean_difference)
-#                 print("Equal opportunity difference =", equal_opportunity_difference)
-#                 print("Average odds difference =", average_odds_difference)
-#                 print("Accuracy =", accuracy)
-#                 print("Precision =", precision)
-#                 print("Recall =", recall)
-#                 print("F1-score =", f1)
-#             except Exception as e:
-#                 errore = f"Error while loading dataset: {str(e)}"
-#                 messages.error(request, errore)
-#                 print(errore)
-#                 context = {
-#                     'errore': errore,
-#                 }
-#                 return render(request, '404.html', context)
+
+def modelTrainedSustainabilitySocial(request):
+    if request.method == 'POST':
+        form = ModelTrainedSocialForm(request.POST, request.FILES)
+        if form.is_valid():
+            modelTypeSocial = form.cleaned_data['modelTypeSocial']
+            dataSet = form.cleaned_data['dataset']
+            protectedAttributes = form.cleaned_data['protected_attributes']
+            labelAttribute=form.cleaned_data['labelAttribute']
+
+
+            # verification of protected attribute selections and dataSet
+            if not (protectedAttributes and dataSet and labelAttribute):
+                errore = "The fields of the protected attribute column, dataset and label of attributes cannot be empty"
+                messages.error(request, errore)
+                print(errore)
+                context = {
+                    'errore': errore,
+                }
+                return render(request, '404.html', context)
+
+            # Verify data format
+            if not dataSet.name.endswith(('.csv', '.xlsx', '.xls', '.json', '.yaml')):
+                errore = "Data file type not supported"
+                messages.error(request, errore)
+                print(errore)
+                context = {
+                    'errore': errore,
+                }
+                return render(request, '404.html', context)
+
+            columns=None
+            # Read data from the dataset
+            try:
+                if dataSet.name.endswith('.csv'):
+                    data = pd.read_csv(io.StringIO(dataSet.read().decode('utf-8')))
+                    columns = list(data.columns)
+
+                elif dataSet.name.endswith('.xlsx') or dataSet.name.endswith('.xls'):
+                    data = pd.read_excel(io.BytesIO(dataSet.read()))
+                    columns = list(data.columns)
+
+                elif dataSet.name.endswith('.json'):
+                    data = pd.read_json(io.StringIO(dataSet.read().decode('utf-8')))
+                    columns = list(data.columns)
+
+                elif dataSet.name.endswith('.yaml'):
+                    data = pd.json_normalize(yaml.safe_load(io.StringIO(dataSet.read().decode('utf-8'))))
+                    columns = list(data.columns)
+
+                else:
+                    raise ValueError("Data file type not supported")
+
+                print("The data file was read correctly.")
+            except Exception as e:
+                errore = "Error while reading the data file: " + str(e)
+                messages.error(request, errore)
+                print(errore)
+                context = {
+                    'errore': errore,
+                }
+
+                return render(request, '404.html', context)
+
+            # Check if protected attributes are in the dataset
+            missing_attributes = [attr for attr in protectedAttributes if attr not in columns]
+            if missing_attributes:
+                errore = f"The following protected attributes are not present in the dataset: {', '.join(missing_attributes)}"
+                messages.error(request, errore)
+                print(errore)
+                context = {
+                    'errore': errore,
+                }
+                return render(request, '404.html', context)
+
+            if modelTypeSocial == 'distilbert-base-uncased':
+                try:
+                    # Get tokenizer and the pre-trained model
+                    tokenizer = DistilBertTokenizer.from_pretrained(modelTypeSocial)
+                    model = DistilBertForSequenceClassification.from_pretrained(modelTypeSocial)
+                except Exception as e:
+                    errore = f"Error while loading model or tokenizer: {str(e)}"
+                    messages.error(request, errore)
+                    print(errore)
+                    context = {
+                        'errore': errore,
+                    }
+                    return render(request, '404.html', context)
+
+                try:
+                    # Preprocess the data
+                    def preprocess_data(examples):
+                        # Tokenize the text
+                        encodings = tokenizer(examples['text'], truncation=True, padding=True)
+                        # Convert the labels to integers
+                        labels = [int(label) for label in examples['label']]
+                        # Add the labels to the encodings
+                        encodings['labels'] = labels
+                        return encodings
+
+                    # Preprocess the training and test dataset
+                    train_dataset = data['train'].map(preprocess_data, batched=True)
+                    test_dataset = data['test'].map(preprocess_data, batched=True)
+
+                    # Define the training arguments
+                    training_args = TrainingArguments(
+                        output_dir='./results',  # output directory for the training results
+                        num_train_epochs=3,  # total number of training epochs
+                        per_device_train_batch_size=16,  # batch size for training
+                        per_device_eval_batch_size=64,  # batch size for evaluation
+                        warmup_steps=500,  # number of warmup steps
+                        weight_decay=0.01,  # weight decay
+                        logging_dir='./logs',  # output directory for the logs
+                    )
+
+                    # Create the Trainer
+                    trainer = Trainer(
+                        model=model,
+                        args=training_args,
+                        train_dataset=train_dataset,
+                        eval_dataset=test_dataset,
+                    )
+
+                    # Train the model
+                    trainer.train()
+
+                    # Get the predictions
+                    predictions = trainer.predict(test_dataset)
+
+                    # Convert the predictions and the test data into BinaryLabelDataset
+                    test_bld = BinaryLabelDataset(df=test_dataset, label_names=[labelAttribute],
+                                                  protected_attribute_names=protectedAttributes)
+                    predictions_bld = BinaryLabelDataset(df=predictions, label_names=[labelAttribute],
+                                                         protected_attribute_names=protectedAttributes)
+
+                    # Create a ClassificationMetric
+                    metric = ClassificationMetric(test_bld, predictions_bld,
+                                                  unprivileged_groups=[{attr: 0 for attr in protectedAttributes}],
+                                                  privileged_groups=[{attr: 1 for attr in protectedAttributes}])
+
+                    # Calculate the metrics
+                    mean_difference = metric.mean_difference()
+                    equal_opportunity_difference = metric.equal_opportunity_difference()
+                    average_odds_difference = metric.average_odds_difference()
+
+                    # Calculate the accuracy metrics
+                    accuracy = accuracy_score(test_dataset.labels, predictions.labels)
+                    precision = precision_score(test_dataset.labels, predictions.labels)
+                    recall = recall_score(test_dataset.labels, predictions.labels)
+                    f1 = f1_score(test_dataset.labels, predictions.labels)
+
+                    # Print the metrics
+                    print("Mean difference =", mean_difference)
+                    print("Equal opportunity difference =", equal_opportunity_difference)
+                    print("Average odds difference =", average_odds_difference)
+                    print("Accuracy =", accuracy)
+                    print("Precision =", precision)
+                    print("Recall =", recall)
+                    print("F1-score =", f1)
+                except Exception as e:
+                    errore = "Error while loading dataset: " + str(e)
+                    messages.error(request, errore)
+                    print(errore)
+                    context = {
+                        'errore': errore,
+                    }
+
+                    return render(request, '404.html', context)
 
 
 # Function for monitoring social sustainability using aif360 with identified metrics
@@ -665,8 +734,8 @@ def uploadFileSocial(request):
 
     if request.method == 'POST':
 
-        form = FileSocialForm(request.POST,request.FILES)
-        formAttributes=SelectProtectedAttributesForm(request.POST,columns=request.session.get('columns'))
+        form = FileSocialForm(request.POST, request.FILES)
+        formAttributes = SelectProtectedAttributesForm(request.POST, columns=request.session.get('columns'))
 
         if form.is_valid() and formAttributes.is_valid():
 
@@ -675,7 +744,7 @@ def uploadFileSocial(request):
             labelAttribute = form.cleaned_data['labelAttribute']
             protectedAttributes = formAttributes.cleaned_data['protected_attributes']
 
-            #verification of protected attribute selections and labels
+            # verification of protected attribute selections and labels
             if not (protectedAttributes and labelAttribute):
                 errore = "The fields of the protected attribute column and label column cannot be empty"
                 messages.error(request, errore)
@@ -870,6 +939,6 @@ def uploadFileSocial(request):
             return render(request, '404.html', context)
     else:
 
-        #Redirects to the page for loading the dataset
+        # Redirects to the page for loading the dataset
         form = UploadDatasetForm()
         return render(request, 'uploadDataset.html', {'form': form})

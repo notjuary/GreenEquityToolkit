@@ -96,6 +96,18 @@
         input[type="submit"]:hover {
             background-color: #71b084;
         }
+        
+          input[type="checkbox"] {
+        width: auto;  /* Sovrascrive la larghezza al 100% definita per gli altri input */
+        margin: 10px 5px;  /* Aggiunge un po' di spazio intorno alle checkbox */
+    }
+
+    /* Stile per le etichette delle checkbox */
+    label.checkbox {
+        display: inline-block;  /* Fa sì che le etichette si dispongano orizzontalmente */
+        margin-right: 10px;  /* Aggiunge un po' di spazio tra le etichette */
+    }
+    
     </style>
     {% include 'menu.html' %}
     <meta charset="UTF-8">
@@ -109,6 +121,9 @@
              <h2>Select ML model pre-trained to evaluate social sustainability </h2>
             <p>In this section you can evaluate the social sustainability among those available below</p>
             {{ form.modelTypeSocial.label_tag }} {{ form.modelTypeSocial }}
+            {{ form.dataset.label_tag }} {{ form.dataset }}
+            {{ form.protectedAttributes.label_tag }} {{ form.protectedAttributes }}
+            {{ form.labelAttribute.label_tag }}  {{ form.labelAttribute}}
          <input type="submit" value="Upload">
         </section>    
     </form>

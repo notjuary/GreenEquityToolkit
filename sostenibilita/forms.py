@@ -97,4 +97,18 @@ class ModelTrainedSocialForm(forms.Form):
         ('distilbert-base-uncased','DistilBERT'),
     ]
 
+    PROTECTED_ATTRIBUTES_CHOICES = [
+        ('activity', 'Activity'),
+        ('age', 'Age'),
+        ('gender', 'Gender'),
+        ('geography', 'Geography'),
+        ('sex', 'Sex'),
+        ('race', 'Race'),
+    ]
+
     modelTypeSocial = forms.ChoiceField(choices=MODEL_CHOICES, label="Select the type of model pre-trained ")
+    protectedAttributes = forms.MultipleChoiceField(choices=PROTECTED_ATTRIBUTES_CHOICES,
+                                                    widget=forms.CheckboxSelectMultiple,
+                                                    label="Select protected attributes")
+    dataset = forms.FileField(label="Upload dataset",validators=[validate_data_file_extension])
+    labelAttribute = forms.CharField(label="Enter the name of the label column", validators=[validate_label_attribute])
