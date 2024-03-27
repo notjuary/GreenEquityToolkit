@@ -6,7 +6,7 @@ import re
 def validate_model_file_extension(value):
     import os
     ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
-    valid_extensions = ['.tensorflow','.pytorch', '.onnx']
+    valid_extensions = ['.tensorflow','.pytorch', '.onnx','.pkl']
     if not ext.lower() in valid_extensions:
         raise ValidationError(u'Unsupported file extension.')
 
@@ -18,19 +18,26 @@ def validate_data_file_extension(value):
     if not ext.lower() in valid_extensions:
         raise ValidationError(u'Unsupported file extension for the data file.')
 
-
-#Function that checks that the label for the dataset to be analyzed in social sustainability is not empty
-def validate_label_attribute(value):
+def validate_numbers_inferences(value):
     if not value:
         raise forms.ValidationError("This field is required.")
-    if not re.match(r"^[\w\-]+$", value):  # Allow only alphanumeric characters and hyphens
-        raise forms.ValidationError("This field can only contain letters, numbers, and hyphens.")
+    if value < 0: # Allow only numeric characters
+        raise forms.ValidationError("This field can only contain numbers")
+
 
 #Class for managing the form for evaluating the environmental sustainability of files to be uploaded
 class FileTraniningForm(forms.Form):
+    DEVICE_CHOICES = [
+        ('cpu', 'CPU'),
+        ('gpu', 'GPU'),
+    ]
+
     fileTraining=forms.FileField(label="Select the ML model file to be uploaded ",validators=[validate_model_file_extension])
     dataFile=forms.FileField(label="Selects the data file on which the model is trained ",validators=[validate_data_file_extension])
     countryIsoCode = forms.ChoiceField(label="Select ISO Code of the country where the experiment is being run ",required=True)
+    inferenceDevice=forms.ChoiceField(choices=DEVICE_CHOICES,label="Selects where to perform inference from the machine learning model ",required= True)
+    numInferences=forms.IntegerField(label="Enter the inference number to be performed for the ML model ",required= True,validators=[validate_numbers_inferences])
+
     def __init__(self, *args, **kwargs):
         country_choices = kwargs.pop('countries', [])
         super(FileTraniningForm, self).__init__(*args, **kwargs)
@@ -50,7 +57,7 @@ class FileSocialForm(forms.Form):
     fileModel=forms.FileField(label="Select the ML model file to be uploaded ",validators=[validate_model_file_extension])
     datasetFile = forms.FileField(label="Selects the data file on which the model is trained ",
                                   validators=[validate_data_file_extension])
-    labelAttribute = forms.CharField(label="Enter the name of the label column",validators=[validate_label_attribute])
+
 
 #Class for managing the form for loading the dataset and defining the protected attributes
 class UploadDatasetForm(forms.Form):
@@ -87,28 +94,22 @@ class SelectProtectedAttributesForm(forms.Form):
         columns = kwargs.pop('columns', [])
         super().__init__(*args, **kwargs)
         CHOICES = [(column, column) for column in columns if column != 'Unnamed: 0']
-        self.fields['protected_attributes'] = forms.MultipleChoiceField(choices=CHOICES, widget=forms.CheckboxSelectMultiple)
+        self.fields['protected_attributes'] = forms.MultipleChoiceField(choices=CHOICES, widget=forms.CheckboxSelectMultiple,error_messages={
+                'required': 'Please select at least one protected attribute.',
+            })
+        self.fields['attribute']=forms.MultipleChoiceField(choices=CHOICES, widget=forms.CheckboxSelectMultiple,error_messages={
+            'required': 'Please select at least one protected attribute.',
+        })
 
+        def clean(self):
+            cleaned_data = super().clean()
+            labelAttribute = cleaned_data.get('attribute')
+            protected_attributes = cleaned_data.get('protected_attributes')
 
-#Class for form management for selection of pre-trained models for social sustainability assessment
-class ModelTrainedSocialForm(forms.Form):
-    MODEL_CHOICES = [
-        ('bert-base-uncased', 'BERT'),
-        ('distilbert-base-uncased','DistilBERT'),
-    ]
+            if not labelAttribute:
+                self.add_error('labelAttribute', 'The label field cannot be empty')
 
-    PROTECTED_ATTRIBUTES_CHOICES = [
-        ('activity', 'Activity'),
-        ('age', 'Age'),
-        ('gender', 'Gender'),
-        ('geography', 'Geography'),
-        ('sex', 'Sex'),
-        ('race', 'Race'),
-    ]
+            if not protected_attributes:
+                self.add_error('protected_attributes', 'You must select at least one protected attribute')
 
-    modelTypeSocial = forms.ChoiceField(choices=MODEL_CHOICES, label="Select the type of model pre-trained ")
-    protectedAttributes = forms.MultipleChoiceField(choices=PROTECTED_ATTRIBUTES_CHOICES,
-                                                    widget=forms.CheckboxSelectMultiple,
-                                                    label="Select protected attributes")
-    dataset = forms.FileField(label="Upload dataset",validators=[validate_data_file_extension])
-    labelAttribute = forms.CharField(label="Enter the name of the label column", validators=[validate_label_attribute])
+            return cleaned_data

@@ -117,7 +117,13 @@
         
         #emissions-plot {
             width: 100%; 
-            height: 400px; 
+            height: 600px; 
+            margin: 20px auto; 
+        }
+        
+        #combined-emissions-violin-plot{
+             width: 100%; 
+            height: 600px; 
             margin: 20px auto; 
         }
         
@@ -127,7 +133,7 @@
             height: auto;
             margin: 20px auto;
         }
-          
+           
            a.download-button {
             display: inline-block;
             padding: 10px 15px;
@@ -151,14 +157,33 @@
 </head>
 <body>
     {% load static %}
-    <img src="{% static image_path %}">
+    
+<div id="emissions-plot">  
+    
+</div>   
+ <script src="https://cdn.plot.ly/plotly-2.15.1.min.js"></script>
+<script>
+    var fig = JSON.parse('{{ fig | escapejs }}');
+    Plotly.newPlot('emissions-plot', fig);
+</script>
+    
+<div id="combined-emissions-violin-plot">
+    
+</div>    
+    <script src="https://cdn.plot.ly/plotly-2.15.1.min.js"></script>
+    <script>
+        var combined_fig_json = JSON.parse('{{ combined_fig_json|escapejs }}');
+
+    Plotly.newPlot('combined-emissions-violin-plot', combined_fig_json);
+
+        
+    </script>
+        
     <section class="introduzione">
         <p>
             It is possible, below, to make the accurate download of the ascertained dataset
         </p>
-         <a href="{% url 'downloadFileEmission' %}" class="download-button">Download full report</a>
-    </section>    
-       
-       
+       <a href="{% url 'downloadFileEmission' %}" class="download-button">Download full report</a>
+    </section>
 </body>
 </html>

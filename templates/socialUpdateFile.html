@@ -108,22 +108,46 @@
     input[type="checkbox"]:checked {
         background-color: #48a363; 
     }
+    
+           
+        input[type="file"]::before {
+    content: "Choose the file...";
+    color: #999;
+    display: inline-block;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 6px 12px;
+    outline: none;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    cursor: pointer;
+    text-shadow: 1px 1px #fff;
+    font-weight: 700;
+    font-size: 10pt;
+}
+
+input[type="file"] {
+    color: transparent;
+}
+
+    
     </style>
     {% include 'menu.html' %}
     <meta charset="UTF-8">
     <title>Carica Modello ML</title>
 </head>
 <body>
-<form action="/sostenibilita/uploadFileSocial" method="post" enctype="multipart/form-data">
+<form action="/sostenibilita/uploadFileSocial" method="post" enctype="multipart/form-data" onsubmit="return confirm('Are you sure you want to proceed?');">
     <section class="introduzione">
         {% csrf_token %}
         <h2>Upload ML model to evaluate social sustainability</h2>
         <p>In this section you can evaluate the social sustainability of your ML models by uploading the ML model file and dataset.</p>
         {{ uploadForm.fileModel.label_tag }} {{ uploadForm.fileModel }}
         {{ uploadForm.datasetFile.label_tag }} {{ uploadForm.datasetFile }}
-        {{ uploadForm.labelAttribute.label_tag }}{{ uploadForm.labelAttribute }}
-        <label>Selects protected attributes to protect</label>
-        {{ selectForm.protected_attributes.label_tag }} {{ selectForm.protected_attributes }}
+        <label> Selects the label to be analyzed by AIF 360</label>
+{{ selectForm.attribute }}  <label>Selects protected attributes to protect</label>
+{{ selectForm.protected_attributes.label_tag }} {{ selectForm.protected_attributes }}
 
         <input type="submit" value="Upload">
     </section>

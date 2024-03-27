@@ -96,6 +96,27 @@
         input[type="submit"]:hover {
             background-color: #71b084;
         }
+        
+        input[type="file"]::before {
+    content: "Choose the file...";
+    color: #999;
+    display: inline-block;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 6px 12px;
+    outline: none;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    cursor: pointer;
+    text-shadow: 1px 1px #fff;
+    font-weight: 700;
+    font-size: 10pt;
+}
+
+input[type="file"] {
+    color: transparent;
+}
     </style>
     {% include 'menu.html' %}
     <meta charset="UTF-8">
@@ -110,6 +131,8 @@
         {{ form.fileTraining.label_tag }} {{ form.fileTraining }}
         {{ form.dataFile.label_tag }} {{ form.dataFile }}
         {{ form.countryIsoCode.label_tag }} {{ form.countryIsoCode }}
+        {{ form.inferenceDevice.label_tag }} {{ form.inferenceDevice }}
+        {{ form.numInferences.label_tag }} {{ form.numInferences }}
        
         <input type="submit" value="Upload">
     </section>

@@ -2,6 +2,7 @@ import json
 
 import joblib
 import pandas as pd
+import plotly
 import yaml
 from aif360.datasets import BinaryLabelDataset
 from aif360.metrics import ClassificationMetric, BinaryLabelDatasetMetric
@@ -13,8 +14,9 @@ from django.urls import reverse
 from django.contrib import messages
 from codecarbon import OfflineEmissionsTracker
 from sklearn.metrics._classification import precision_score, recall_score, f1_score
+from tensorboard.compat import tf
 
-from sostenibilita.forms import FileTraniningForm, ModelTrainedForm, ModelTrainedSocialForm, FileSocialForm, \
+from sostenibilita.forms import FileTraniningForm, ModelTrainedForm, FileSocialForm, \
     UploadDatasetForm, SelectProtectedAttributesForm
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trainer, TrainingArguments, \
     glue_compute_metrics, training_args, DistilBertTokenizer, DistilBertForSequenceClassification
@@ -34,6 +36,8 @@ import plotly.express as px
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+import json
 
 output_dir = '.'
 output_file = 'emissions.csv'
@@ -51,12 +55,6 @@ def downloadFileEmission(request):
 
     return response
 
-
-# Redirection function to the section for social monitoring pre-trained models
-def modelsPreaddestratedSocial(request):
-    # Create an instance of form.
-    form = ModelTrainedSocialForm()
-    return render(request, 'sustainabilitysocialemodel.html', {'form': form})
 
 
 # Redirect function for loading the dataset
@@ -396,336 +394,190 @@ def uploadFile(request):
     if request.method == 'POST':
         form = FileTraniningForm(request.POST, request.FILES, countries=countries)
         if form.is_valid():
-            file = form.cleaned_data['fileTraining']
-            dataFile = form.cleaned_data['dataFile']
-            countryIsoCode = form.cleaned_data['countryIsoCode']
+                file = form.cleaned_data['fileTraining']
+                dataFile = form.cleaned_data['dataFile']
+                countryIsoCode = form.cleaned_data['countryIsoCode']
+                numInferences = form.cleaned_data['numInferences']
+                inferenceDevice = form.cleaned_data['inferenceDevice']
 
-            # Verify data format
-            if not dataFile.name.endswith(('.csv', '.xlsx', '.xls', '.json', '.yaml')):
-                errore = "Data file type not supported"
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
+                #Number of inferences is not negative and is an integer
+                if numInferences <0 or not isinstance(numInferences, int):
+                    errore = "The number of inferences must be an integer and positive"
+                    messages.error(request, errore)
+                    print(errore)
+                    context = {
+                        'errore': errore,
+                    }
+                    return render(request, '404.html', context)
 
-            # Save the file temporarily
-            _, temp_file_path = tempfile.mkstemp()
-            with open(temp_file_path, 'wb+') as temp_file:
-                for chunk in file.chunks():
-                    temp_file.write(chunk)
 
-            # Upload the template
-            try:
-                model = joblib.load(temp_file_path)  # Load the model with joblib
-                modelType = None
+                # Verify data format
+                if not dataFile.name.endswith(('.csv', '.xlsx', '.xls', '.json', '.yaml')):
+                    errore = "Data file type not supported"
+                    messages.error(request, errore)
+                    print(errore)
+                    context = {
+                        'errore': errore,
+                    }
+                    return render(request, '404.html', context)
 
-                # Determine the library of the model
-                if isinstance(model, sklearn.base.BaseEstimator):
-                    modelType = 'sklearn'
-                elif isinstance(model, tensorflow.python.keras.engine.training.Model):
-                    modelType = 'tensorflow'
-                elif isinstance(model, torch.nn.modules.module.Module):
-                    modelType = 'pytorch'
-                elif isinstance(model, onnx.onnx_ml_pb2.ModelProto):
-                    modelType = 'onnx'
+                # Save the file temporarily
+                _, temp_file_path = tempfile.mkstemp()
+                with open(temp_file_path, 'wb+') as temp_file:
+                    for chunk in file.chunks():
+                        temp_file.write(chunk)
 
+                # Upload the template
+                try:
+                    model = joblib.load(temp_file_path)  # Load the model with joblib
+                    modelType = None
+
+                    # Determine the library of the model
+                    if isinstance(model, sklearn.base.BaseEstimator):
+                        modelType = 'sklearn'
+                    elif isinstance(model, tensorflow.python.keras.engine.training.Model):
+                        modelType = 'tensorflow'
+                    elif isinstance(model, torch.nn.modules.module.Module):
+                        modelType = 'pytorch'
+                    elif isinstance(model, onnx.onnx_ml_pb2.ModelProto):
+                        modelType = 'onnx'
+
+                    else:
+                        raise ValueError("Model type not supported")
+
+                    print(f"The model was loaded correctly. Model type: {modelType}")
+                except Exception as e:
+                    errore = f"Error while loading the model: {str(e)}"
+                    messages.error(request, errore)
+                    print(errore)
+                    context = {
+                        'errore': errore,
+                    }
+                    return render(request, '404.html', context)
+
+                # Read data from the file
+                try:
+                    if dataFile.name.endswith('.csv'):
+                        data = pd.read_csv(io.StringIO(dataFile.read().decode('utf-8')))
+                    elif dataFile.name.endswith('.xlsx') or dataFile.name.endswith('.xls'):
+                        data = pd.read_excel(io.BytesIO(dataFile.read()))
+                    elif dataFile.name.endswith('.json'):
+                        data = pd.read_json(io.StringIO(dataFile.read().decode('utf-8')))
+                    elif dataFile.name.endswith('.yaml'):
+                        data = pd.json_normalize(yaml.safe_load(io.StringIO(dataFile.read().decode('utf-8'))))
+                    else:
+                        raise ValueError("Data file type not supported")
+                    print("The data file was read correctly.")
+                except Exception as e:
+                    errore = "Error while reading the data file: " + str(e)
+                    messages.error(request, errore)
+                    print(errore)
+                    context = {
+                        'errore': errore,
+                    }
+                    return render(request, '404.html', context)
+
+                    # Start monitoring with CodeCarbon
+                tracker = OfflineEmissionsTracker(
+                    country_iso_code=countryIsoCode,
+                    output_file=output_file,
+                    output_dir=output_dir
+                )
+
+                tracker.start()
+
+                # Set the device for the model
+                device = 'cuda' if inferenceDevice == 'gpu' and torch.cuda.is_available() else 'cpu'
+
+                # Run the model for numInferences times
+                for _ in range(numInferences):
+                    try:
+                        if modelType == 'sklearn' and isinstance(model, sklearn.base.BaseEstimator):
+                            predictions = model.predict(data)
+                        elif modelType == 'tensorflow' and isinstance(model, tensorflow.python.keras.engine.training.Model):
+                            with tf.device(device):
+                                predictions = model.predict(data)
+                        elif modelType == 'pytorch' and isinstance(model, torch.nn.modules.module.Module):
+                            data_tensor = torch.from_numpy(data.values.astype('float32')).to(device)
+                            model = model.to(device)
+                            predictions = model(data_tensor)
+                        elif modelType == 'onnx':
+                            input_name = sess.get_inputs()[0].name
+                            predictions = sess.run(None, {input_name: data.values.astype('float32')})
+                        else:
+                            raise ValueError("Model type not supported")
+                    except Exception as e:
+                        errore = "Error during model execution: " + str(e)
+                        messages.error(request, errore)
+                        print(errore)
+                        tracker.stop()
+                        context = {
+                            'errore': errore,
+                        }
+                        return render(request, '404.html', context)
+                    finally:
+                        tracker.stop()
+
+                dataResults = []
+                # Check if the file has been created
+                csv_file_path = os.path.join(output_dir, output_file)
+                if os.path.isfile(csv_file_path):
+                    print(f"CSV file created: {csv_file_path}")
+
+                    with open(csv_file_path, 'r') as csvfile:
+                        csv_reader = csv.DictReader(csvfile, delimiter=',')
+                        for row in csv_reader:
+                            print(row)
+                            dataResults.append({
+                                'timestamp': row['timestamp'],
+                                'run_id': row['run_id'],
+                                'energy_consumed': row['energy_consumed'],
+                                'duration': row['duration'],
+                                'ram_energy': row['ram_energy'],
+                                'cpu_energy':row['cpu_energy'],
+                                'gpu_energy':row['gpu_energy']
+                            })
                 else:
-                    raise ValueError("Model type not supported")
+                    print(f"CSV file not found: {csv_file_path}")
 
-                print(f"The model was loaded correctly. Model type: {modelType}")
-            except Exception as e:
-                errore = f"Error while loading the model: {str(e)}"
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
+                energy_consumption_data = [pd.to_numeric(row['energy_consumed']) for row in dataResults]
+                fig = px.violin(energy_consumption_data, title="Energy Consumption Distribution")
 
-            # Read data from the file
-            try:
-                if dataFile.name.endswith('.csv'):
-                    data = pd.read_csv(io.StringIO(dataFile.read().decode('utf-8')))
-                elif dataFile.name.endswith('.xlsx') or dataFile.name.endswith('.xls'):
-                    data = pd.read_excel(io.BytesIO(dataFile.read()))
-                elif dataFile.name.endswith('.json'):
-                    data = pd.read_json(io.StringIO(dataFile.read().decode('utf-8')))
-                elif dataFile.name.endswith('.yaml'):
-                    data = pd.json_normalize(yaml.safe_load(io.StringIO(dataFile.read().decode('utf-8'))))
-                else:
-                    raise ValueError("Data file type not supported")
-                print("The data file was read correctly.")
-            except Exception as e:
-                errore = "Error while reading the data file: " + str(e)
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
+                combined_energy_data=[]
+                for row in dataResults:
+                    combined_energy_data.append([row['ram_energy'], row['cpu_energy'], row['gpu_energy']])
 
-                # Start monitoring with CodeCarbon
-            tracker = OfflineEmissionsTracker(
-                country_iso_code=countryIsoCode,
-                output_file=output_file,
-                output_dir=output_dir
-            )
+                df_combined = pd.DataFrame(combined_energy_data, columns=["RAM", "CPU", "GPU"])
 
-            tracker.start()
+                figEnergy = px.violin(df_combined.melt(var_name='Type', value_name='Energy'), y="Energy", x="Type", box=True, title="Energy Consumption Distribution (RAM,CPU,GPU)")
 
-            # Run the model
-            try:
-                if modelType == 'sklearn' and isinstance(model, sklearn.base.BaseEstimator):
-                    predictions = model.predict(data)
-                elif modelType == 'tensorflow' and isinstance(model, tensorflow.python.keras.engine.training.Model):
-                    predictions = model.predict(data)
-                elif modelType == 'pytorch' and isinstance(model, torch.nn.modules.module.Module):
-                    data = torch.from_numpy(data.values.astype('float32'))  # Converti i dati in un tensore PyTorch
-                    predictions = model(data)
-                elif modelType == 'onnx':
-                    input_name = sess.get_inputs()[0].name
-                    result = sess.run(None, {input_name: data.values.astype('float32')})
-                else:
-                    raise ValueError("Model type not supported")
-            except Exception as e:
-                errore = "Error during model execution: " + str(e)
-                messages.error(request, errore)
-                print(errore)
-                tracker.stop()
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
-            finally:
-                # Stop emissioni del tracker
-                tracker.stop()
+                # Optional customizations for the plot
+                fig.update_layout(
+                    xaxis_title="Energy Consumed (Joules)",
+                    yaxis_title="Count",
+                    violingroupgap=0
+                )
 
-            dataResults = []
-            # Check if the file has been created
-            csv_file_path = os.path.join(output_dir, output_file)
-            if os.path.isfile(csv_file_path):
-                print(f"CSV file created: {csv_file_path}")
 
-                with open(csv_file_path, 'r') as csvfile:
-                    csv_reader = csv.DictReader(csvfile, delimiter=',')
-                    for row in csv_reader:
-                        print(row)
-                        dataResults.append({
-                            'timestamp': row['timestamp'],
-                            'run_id': row['run_id'],
-                            'energy_consumed': row['energy_consumed'],
-                            'duration': row['duration'],
-                            'ram_energy': row['ram_energy'],
-                        })
-            else:
-                print(f"CSV file not found: {csv_file_path}")
+                messages.success(request, "Processing successfully completed!")
+                return render(request, 'results.html', {'data': dataResults, 'fig': fig.to_json(),'combined_fig_json': figEnergy.to_json()})
 
-            df = pd.DataFrame(dataResults)
 
-            for column in ['energy_consumed', 'duration', 'ram_energy', 'cpu_energy', 'gpu_energy']:
-                df[column] = df[column].astype(float)
 
-            # Create violin plot
-            plt.figure(figsize=(10, 6))
-            sns.violinplot(data=df[['energy_consumed', 'ram_energy', 'cpu_energy', 'gpu_energy']])
-            plt.title('Violin Plot of Energy Metrics')
-            plt.ylabel('Energy consumed')
-
-            new_folder_path = 'static/img'
-
-            # Create the new folder if it does not already exist.
-            os.makedirs(new_folder_path, exist_ok=True)
-
-            # Save the image in the new folder.
-            plt.savefig(os.path.join(new_folder_path, 'violin_plot.png'))
-
-            messages.success(request, "Processing successfully completed!")
-            return render(request, 'results.html', {'image_path': '/img/violin_plot.png'})
-
-            os.remove(temp_file_path)  # Remove the temporary file
+                #os.remove(temp_file_path)  # Remove the temporary file
 
         else:
             print(form.errors)
-            errore = "Error loading file"
+            errore = str(form.errors)
             messages.error(request, errore)
             print(errore)
             context = {
                 'errore': errore,
             }
             return render(request, '404.html', context)
+
     else:
         return render(request, 'trainingFile.html')
-
-
-def modelTrainedSustainabilitySocial(request):
-    if request.method == 'POST':
-        form = ModelTrainedSocialForm(request.POST, request.FILES)
-        if form.is_valid():
-            modelTypeSocial = form.cleaned_data['modelTypeSocial']
-            dataSet = form.cleaned_data['dataset']
-            protectedAttributes = form.cleaned_data['protected_attributes']
-            labelAttribute=form.cleaned_data['labelAttribute']
-
-
-            # verification of protected attribute selections and dataSet
-            if not (protectedAttributes and dataSet and labelAttribute):
-                errore = "The fields of the protected attribute column, dataset and label of attributes cannot be empty"
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
-
-            # Verify data format
-            if not dataSet.name.endswith(('.csv', '.xlsx', '.xls', '.json', '.yaml')):
-                errore = "Data file type not supported"
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
-
-            columns=None
-            # Read data from the dataset
-            try:
-                if dataSet.name.endswith('.csv'):
-                    data = pd.read_csv(io.StringIO(dataSet.read().decode('utf-8')))
-                    columns = list(data.columns)
-
-                elif dataSet.name.endswith('.xlsx') or dataSet.name.endswith('.xls'):
-                    data = pd.read_excel(io.BytesIO(dataSet.read()))
-                    columns = list(data.columns)
-
-                elif dataSet.name.endswith('.json'):
-                    data = pd.read_json(io.StringIO(dataSet.read().decode('utf-8')))
-                    columns = list(data.columns)
-
-                elif dataSet.name.endswith('.yaml'):
-                    data = pd.json_normalize(yaml.safe_load(io.StringIO(dataSet.read().decode('utf-8'))))
-                    columns = list(data.columns)
-
-                else:
-                    raise ValueError("Data file type not supported")
-
-                print("The data file was read correctly.")
-            except Exception as e:
-                errore = "Error while reading the data file: " + str(e)
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-
-                return render(request, '404.html', context)
-
-            # Check if protected attributes are in the dataset
-            missing_attributes = [attr for attr in protectedAttributes if attr not in columns]
-            if missing_attributes:
-                errore = f"The following protected attributes are not present in the dataset: {', '.join(missing_attributes)}"
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
-
-            if modelTypeSocial == 'distilbert-base-uncased':
-                try:
-                    # Get tokenizer and the pre-trained model
-                    tokenizer = DistilBertTokenizer.from_pretrained(modelTypeSocial)
-                    model = DistilBertForSequenceClassification.from_pretrained(modelTypeSocial)
-                except Exception as e:
-                    errore = f"Error while loading model or tokenizer: {str(e)}"
-                    messages.error(request, errore)
-                    print(errore)
-                    context = {
-                        'errore': errore,
-                    }
-                    return render(request, '404.html', context)
-
-                try:
-                    # Preprocess the data
-                    def preprocess_data(examples):
-                        # Tokenize the text
-                        encodings = tokenizer(examples['text'], truncation=True, padding=True)
-                        # Convert the labels to integers
-                        labels = [int(label) for label in examples['label']]
-                        # Add the labels to the encodings
-                        encodings['labels'] = labels
-                        return encodings
-
-                    # Preprocess the training and test dataset
-                    train_dataset = data['train'].map(preprocess_data, batched=True)
-                    test_dataset = data['test'].map(preprocess_data, batched=True)
-
-                    # Define the training arguments
-                    training_args = TrainingArguments(
-                        output_dir='./results',  # output directory for the training results
-                        num_train_epochs=3,  # total number of training epochs
-                        per_device_train_batch_size=16,  # batch size for training
-                        per_device_eval_batch_size=64,  # batch size for evaluation
-                        warmup_steps=500,  # number of warmup steps
-                        weight_decay=0.01,  # weight decay
-                        logging_dir='./logs',  # output directory for the logs
-                    )
-
-                    # Create the Trainer
-                    trainer = Trainer(
-                        model=model,
-                        args=training_args,
-                        train_dataset=train_dataset,
-                        eval_dataset=test_dataset,
-                    )
-
-                    # Train the model
-                    trainer.train()
-
-                    # Get the predictions
-                    predictions = trainer.predict(test_dataset)
-
-                    # Convert the predictions and the test data into BinaryLabelDataset
-                    test_bld = BinaryLabelDataset(df=test_dataset, label_names=[labelAttribute],
-                                                  protected_attribute_names=protectedAttributes)
-                    predictions_bld = BinaryLabelDataset(df=predictions, label_names=[labelAttribute],
-                                                         protected_attribute_names=protectedAttributes)
-
-                    # Create a ClassificationMetric
-                    metric = ClassificationMetric(test_bld, predictions_bld,
-                                                  unprivileged_groups=[{attr: 0 for attr in protectedAttributes}],
-                                                  privileged_groups=[{attr: 1 for attr in protectedAttributes}])
-
-                    # Calculate the metrics
-                    mean_difference = metric.mean_difference()
-                    equal_opportunity_difference = metric.equal_opportunity_difference()
-                    average_odds_difference = metric.average_odds_difference()
-
-                    # Calculate the accuracy metrics
-                    accuracy = accuracy_score(test_dataset.labels, predictions.labels)
-                    precision = precision_score(test_dataset.labels, predictions.labels)
-                    recall = recall_score(test_dataset.labels, predictions.labels)
-                    f1 = f1_score(test_dataset.labels, predictions.labels)
-
-                    # Print the metrics
-                    print("Mean difference =", mean_difference)
-                    print("Equal opportunity difference =", equal_opportunity_difference)
-                    print("Average odds difference =", average_odds_difference)
-                    print("Accuracy =", accuracy)
-                    print("Precision =", precision)
-                    print("Recall =", recall)
-                    print("F1-score =", f1)
-                except Exception as e:
-                    errore = "Error while loading dataset: " + str(e)
-                    messages.error(request, errore)
-                    print(errore)
-                    context = {
-                        'errore': errore,
-                    }
-
-                    return render(request, '404.html', context)
 
 
 # Function for monitoring social sustainability using aif360 with identified metrics
@@ -733,7 +585,7 @@ def uploadFileSocial(request):
     sess = None
 
     if request.method == 'POST':
-
+        print(request.POST)
         form = FileSocialForm(request.POST, request.FILES)
         formAttributes = SelectProtectedAttributesForm(request.POST, columns=request.session.get('columns'))
 
@@ -741,8 +593,10 @@ def uploadFileSocial(request):
 
             file = form.cleaned_data['fileModel']
             dataFile = form.cleaned_data['datasetFile']
-            labelAttribute = form.cleaned_data['labelAttribute']
+            labelAttribute = formAttributes.cleaned_data['attribute']
+            print(f"Selected label attribute: {labelAttribute}")
             protectedAttributes = formAttributes.cleaned_data['protected_attributes']
+            print(f"Selected protected attribute: {protectedAttributes}")
 
             # verification of protected attribute selections and labels
             if not (protectedAttributes and labelAttribute):
@@ -820,7 +674,34 @@ def uploadFileSocial(request):
                 }
                 return render(request, '404.html', context)
 
-                # Run the model
+            # Get the number of model features.
+            try:
+                num_features_model = model.n_features_
+            except AttributeError:
+                print("Il modello non ha l'attributo 'n_features_'")
+                num_features_model = None
+
+            # Get the number of data features.
+            num_features_data = data.shape[1]
+
+            try:
+                # Check if the number of features matches
+                if num_features_model is not None and num_features_model != num_features_data:
+                    raise ValueError(
+                        f"Error: the number of model features ({num_features_model}) does not match the number of data features ({num_features_data})")
+                else:
+                    raise ValueError("The number of model features corresponds to the number of data features")
+            except Exception as e:
+                errore = "Error during data verification and validity: " + str(e)
+                messages.error(request, errore)
+                print(errore)
+
+                context = {
+                    'errore': errore,
+                }
+                return render(request, '404.html', context)
+
+            # Run the model
             try:
                 if modelType == 'sklearn' and isinstance(model, sklearn.base.BaseEstimator):
                     predictions = model.predict(data)
@@ -903,6 +784,20 @@ def uploadFileSocial(request):
                 equal_opportunity_difference = classification_metric.equal_opportunity_difference()
                 average_odds_difference = classification_metric.average_odds_difference()
 
+                # Calculate the mean, median, and variance for each group
+                grouped = data.groupby(protectedAttributes)
+                mean_differences = grouped.apply(lambda x: BinaryLabelDatasetMetric(
+                    BinaryLabelDataset(df=x, label_names=[labelAttribute],
+                                       protected_attribute_names=[protectedAttributes])).mean_difference())
+                mean = mean_differences.mean()
+                median = mean_differences.median()
+                variance = mean_differences.var()
+
+                # Calculate the overall 0,1 for each group
+                overall_01 = grouped.apply(lambda x: BinaryLabelDatasetMetric(
+                    BinaryLabelDataset(df=x, label_names=[labelAttribute],
+                                       protected_attribute_names=[protectedAttributes])).num_positives() / len(x))
+
                 # Calculate accuracy metrics.
                 accuracy = accuracy_score(data[labelAttribute], predictions)
                 precision = precision_score(data[labelAttribute], predictions)
@@ -917,6 +812,11 @@ def uploadFileSocial(request):
                 print("Precision =", precision)
                 print("Recall =", recall)
                 print("F1-score =", f1)
+                print("Mean of mean differences:\n", mean)
+                print("Median of mean differences:\n", median)
+                print("Variance of mean differences:\n", variance)
+                print("Overall 0,1:\n", overall_01)
+
                 return render(request, 'resultsSocial.html')
 
             except Exception as e:
