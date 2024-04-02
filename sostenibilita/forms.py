@@ -21,7 +21,7 @@ def validate_data_file_extension(value):
 def validate_numbers_inferences(value):
     if not value:
         raise forms.ValidationError("This field is required.")
-    if value < 0: # Allow only numeric characters
+    if value <= 0: # Allow only numeric characters
         raise forms.ValidationError("This field can only contain numbers")
 
 
@@ -66,13 +66,24 @@ class UploadDatasetForm(forms.Form):
 
 #Class for form management to define pre-trained models for environmental sustainability monitoring
 class ModelTrainedForm(forms.Form):
+    DEVICE_CHOICES = [
+        ('CPU', 'CPU'),
+        ('GPU', 'GPU'),
+    ]
+
     MODEL_CHOICES = [
-        ('bert-base-uncased', 'BERT'),
         ('distilbert-base-uncased','DistilBERT'),
     ]
 
-    modelTypeTrained = forms.ChoiceField(choices=MODEL_CHOICES, label="Select the type of model pre-trained ")
-    countryIsoCode = forms.ChoiceField(label="Select ISO Code of the country where the experiment is being run ",required= True)
+    modelTypeTrained = forms.ChoiceField(choices=MODEL_CHOICES, label="Select the type of model pre-trained ",required=True)
+    countryIsoCode = forms.ChoiceField(label="Select ISO Code of the country where the experiment is being run ",
+                                       required=True)
+    inferenceDevice = forms.ChoiceField(choices=DEVICE_CHOICES,
+                                        label="Selects where to perform inference from the machine learning model ",
+                                        required=True)
+    numInferences = forms.IntegerField(label="Enter the inference number to be performed for the ML model ",
+                                       required=True, validators=[validate_numbers_inferences])
+
 
     def __init__(self, *args, **kwargs):
         country_choices = kwargs.pop('countries', [])

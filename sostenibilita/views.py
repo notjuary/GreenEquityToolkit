@@ -15,6 +15,7 @@ from django.contrib import messages
 from codecarbon import OfflineEmissionsTracker
 from sklearn.metrics._classification import precision_score, recall_score, f1_score
 from tensorboard.compat import tf
+from torch import device
 
 from sostenibilita.forms import FileTraniningForm, ModelTrainedForm, FileSocialForm, \
     UploadDatasetForm, SelectProtectedAttributesForm
@@ -218,7 +219,7 @@ def modelView(request):
     # Create an instance of form.
     form = ModelTrainedForm(countries=countries)
     # Create an instance of form.
-    return render(request, 'modelView.html', {'form': form})
+    return render(request, 'trainingModel.html', {'form': form})
 
 
 # Function for defining the metrics of models pre-trained by Hugging Face
@@ -241,7 +242,7 @@ def evaluate(eval_pred):
     return compute_metrics(pred, labels)
 
 
-# Function for modelView.html form processing for tracking pre-trained models
+# Function for trainingModel.html form processing for tracking pre-trained models
 def machineLearningTraining(request):
     countries = request.session.get('countries', None)
 
@@ -254,27 +255,34 @@ def machineLearningTraining(request):
             modelTypeTrained = form.cleaned_data['modelTypeTrained']
             # Selecting the preloaded ISO code of the downloaded JSON file from CodeCarbon's GitHub repo
             countryIsoCode = form.cleaned_data['countryIsoCode']
-            print(str(countryIsoCode))
-            print(form.cleaned_data)
+            #Select where the model should be run whether CPU or GPU
+            inferenceDevice=form.cleaned_data['inferenceDevice']
+            #Selection of the number of inferences to be made
+            numInferences=form.cleaned_data['numInferences']
 
-            if modelTypeTrained == 'bert-base-uncased':
-                try:
-                    # Get tokenizer and the pre-trained model.
-                    tokenizer = AutoTokenizer.from_pretrained(modelTypeTrained)
-                    model = AutoModelForSequenceClassification.from_pretrained(modelTypeTrained)
-                except Exception as e:
-                    errore = f"Error when loading model or tokenizer: {str(e)}"
-                    messages.error(request, errore)
-                    print(errore)
-                    context = {
-                        'errore': errore,
-                    }
-                    return render(request, '404.html', context)
-            elif modelTypeTrained == 'distilbert-base-uncased':
+
+            try:
+                if numInferences <= 0:
+                    raise ValueError("The number of inferences can either be nonnegative or zero")
+            except Exception as e:
+                errore = "Error during data verification and validity: " + str(e)
+                messages.error(request, errore)
+                print(errore)
+
+                context = {
+                    'errore': errore,
+                }
+                return render(request, '404.html', context)
+
+
+
+            if modelTypeTrained == 'distilbert-base-uncased':
                 try:
                     # Get tokenizer and the pre-trained model
                     tokenizer = DistilBertTokenizer.from_pretrained(modelTypeTrained)
                     model = DistilBertForSequenceClassification.from_pretrained(modelTypeTrained)
+                    model_device = device('cpu') if inferenceDevice == 'CPU' else device('cuda')
+                    model.to(model_device)
                 except Exception as e:
                     errore = f"Error while loading model or tokenizer: {str(e)}"
                     messages.error(request, errore)
@@ -311,7 +319,7 @@ def machineLearningTraining(request):
                 # Train the model on the dataset
                 training_args = TrainingArguments("test_trainer", per_device_train_batch_size=16,
                                                   per_device_eval_batch_size=64,
-                                                  num_train_epochs=1, weight_decay=0.01, evaluation_strategy="epoch")
+                                                  num_train_epochs=numInferences, weight_decay=0.01, evaluation_strategy="epoch")
                 trainer = Trainer(
                     model=model,
                     args=training_args,
@@ -346,40 +354,48 @@ def machineLearningTraining(request):
                         csv_reader = csv.DictReader(csvfile, delimiter=',')
                         for row in csv_reader:
                             print(row)
+
+                            # Convert kWh to Joules
+                            energy_in_joules = float(
+                                row['energy_consumed']) * 3600000  # Conversion factor (1 kWh = 3600000 J)
+                            ram_energy_in_joules = float(row['ram_energy']) * 3600000
+                            cpu_energy_in_joules = float(row['cpu_energy']) * 3600000
+                            gpu_energy_in_joules = float(row['gpu_energy']) * 3600000
+
                             dataResults.append({
                                 'timestamp': row['timestamp'],
                                 'run_id': row['run_id'],
-                                'energy_consumed': row['energy_consumed'],
+                                'energy_consumed': energy_in_joules,
                                 'duration': row['duration'],
-                                'ram_energy': row['ram_energy'],
-                                'cpu_energy': row['cpu_energy'],
-                                'gpu_energy': row['gpu_energy']
-
+                                'ram_energy': ram_energy_in_joules,
+                                'cpu_energy': cpu_energy_in_joules,
+                                'gpu_energy': gpu_energy_in_joules
                             })
                 else:
                     print(f"CSV file not found: {csv_file_path}")
 
-                df = pd.DataFrame(dataResults)
+                energy_consumption_data = [row['energy_consumed'] for row in dataResults]
+                fig = px.violin(energy_consumption_data, title="Energy Consumption Distribution")
 
-                for column in ['energy_consumed', 'duration', 'ram_energy', 'cpu_energy', 'gpu_energy']:
-                    df[column] = df[column].astype(float)
+                combined_energy_data = []
+                for row in dataResults:
+                    combined_energy_data.append([row['ram_energy'], row['cpu_energy'], row['gpu_energy']])
 
-                # Create violin plot
-                plt.figure(figsize=(10, 6))
-                sns.violinplot(data=df[['energy_consumed', 'ram_energy', 'cpu_energy', 'gpu_energy']])
-                plt.title('Violin Plot of Energy Metrics')
-                plt.ylabel('Energy consumed')
+                df_combined = pd.DataFrame(combined_energy_data, columns=["RAM", "CPU", "GPU"])
 
-                new_folder_path = 'static/img'
+                figEnergy = px.violin(df_combined.melt(var_name='Type', value_name='Energy'), y="Energy", x="Type",
+                                      box=True, title="Energy Consumption Distribution (RAM,CPU,GPU)")
 
-                # Create the new folder if it does not already exist.
-                os.makedirs(new_folder_path, exist_ok=True)
-
-                # Save the image in the new folder.
-                plt.savefig(os.path.join(new_folder_path, 'violin_plot.png'))
+                # Optional customizations for the plot
+                fig.update_layout(
+                    xaxis_title="Energy Consumed (Joules)",
+                    yaxis_title="Count",
+                    violingroupgap=0
+                )
 
                 messages.success(request, "Processing successfully completed!")
-                return render(request, 'results.html', {'image_path': '/img/violin_plot.png'})
+                return render(request, 'results.html',
+                              {'data': dataResults, 'fig': fig.to_json(), 'combined_fig_json': figEnergy.to_json()})
         else:
             print(form.errors)
 
@@ -528,19 +544,27 @@ def uploadFile(request):
                         csv_reader = csv.DictReader(csvfile, delimiter=',')
                         for row in csv_reader:
                             print(row)
+
+
+                            # Convert kWh to Joules
+                            energy_in_joules = float(row['energy_consumed']) * 3600000  # Conversion factor (1 kWh = 3600000 J)
+                            ram_energy_in_joules = float(row['ram_energy']) * 3600000
+                            cpu_energy_in_joules = float(row['cpu_energy']) * 3600000
+                            gpu_energy_in_joules = float(row['gpu_energy']) * 3600000
+
                             dataResults.append({
                                 'timestamp': row['timestamp'],
                                 'run_id': row['run_id'],
-                                'energy_consumed': row['energy_consumed'],
+                                'energy_consumed': energy_in_joules,
                                 'duration': row['duration'],
-                                'ram_energy': row['ram_energy'],
-                                'cpu_energy':row['cpu_energy'],
-                                'gpu_energy':row['gpu_energy']
+                                'ram_energy': ram_energy_in_joules,
+                                'cpu_energy': cpu_energy_in_joules,
+                                'gpu_energy': gpu_energy_in_joules
                             })
                 else:
                     print(f"CSV file not found: {csv_file_path}")
 
-                energy_consumption_data = [pd.to_numeric(row['energy_consumed']) for row in dataResults]
+                energy_consumption_data = [row['energy_consumed'] for row in dataResults]
                 fig = px.violin(energy_consumption_data, title="Energy Consumption Distribution")
 
                 combined_energy_data=[]
@@ -564,7 +588,7 @@ def uploadFile(request):
 
 
 
-                #os.remove(temp_file_path)  # Remove the temporary file
+                os.remove(temp_file_path)  # Remove the temporary file
 
         else:
             print(form.errors)
@@ -702,30 +726,30 @@ def uploadFileSocial(request):
                 return render(request, '404.html', context)
 
             # Run the model
-            try:
-                if modelType == 'sklearn' and isinstance(model, sklearn.base.BaseEstimator):
-                    predictions = model.predict(data)
-                elif modelType == 'tensorflow' and isinstance(model, tensorflow.python.keras.engine.training.Model):
-                    predictions = model.predict(data)
-                elif modelType == 'pytorch' and isinstance(model, torch.nn.modules.module.Module):
-                    data = torch.from_numpy(data.values.astype('float32'))  # Converti i dati in un tensore PyTorch
-                    predictions = model(data)
-                elif modelType == 'onnx':
-                    input_name = sess.get_inputs()[0].name
-                    result = sess.run(None, {input_name: data.values.astype('float32')})
-                    predictions = result[0]
-                else:
-                    raise ValueError("Model type not supported")
+                try:
+                    if modelType == 'sklearn' and isinstance(model, sklearn.base.BaseEstimator):
+                        predictions = model.predict(data)
+                    elif modelType == 'tensorflow' and isinstance(model, tensorflow.python.keras.engine.training.Model):
+                        predictions = model.predict(data)
+                    elif modelType == 'pytorch' and isinstance(model, torch.nn.modules.module.Module):
+                        data = torch.from_numpy(data.values.astype('float32'))  # Converti i dati in un tensore PyTorch
+                        predictions = model(data)
+                    elif modelType == 'onnx':
+                        input_name = sess.get_inputs()[0].name
+                        result = sess.run(None, {input_name: data.values.astype('float32')})
+                        predictions = result[0]
+                    else:
+                        raise ValueError("Model type not supported")
 
-            except Exception as e:
-                errore = "Error during model execution: " + str(e)
-                messages.error(request, errore)
-                print(errore)
+                except Exception as e:
+                    errore = "Error during model execution: " + str(e)
+                    messages.error(request, errore)
+                    print(errore)
 
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
+                    context = {
+                        'errore': errore,
+                    }
+                    return render(request, '404.html', context)
 
             try:
                 # Verify that the DataFrame is not empty
@@ -817,7 +841,32 @@ def uploadFileSocial(request):
                 print("Variance of mean differences:\n", variance)
                 print("Overall 0,1:\n", overall_01)
 
-                return render(request, 'resultsSocial.html')
+                # Creating a DataFrame with your metrics.
+                df_metrics=({
+                    'Mean difference': [mean_difference],
+                    'Equal opportunity difference': [equal_opportunity_difference],
+                    'Average odds difference': [average_odds_difference],
+                    'Mean of mean differences': [mean],
+                    'Median of mean differences': [median],
+                    'Variance of mean differences': [variance],
+                    'Overall 0,1': [overall_01]
+                })
+
+                df_metrics = df_metrics.melt(var_name='Metric', value_name='Value')
+                # Create the box plot with Plotly
+                fig = px.box(df_metrics, x='Metric', y='Value')
+
+                df_metrics_accuracy = pd.DataFrame({
+                    'Accuracy': [accuracy],
+                    'Precision': [precision],
+                    'Recall': [recall],
+                    'F1-score': [f1]
+                })
+
+                df_metrics_accuracy = df_metrics_accuracy.melt(var_name='Metric', value_name='Value')
+                fig_accuracy = px.box(df_metrics_accuracy, x='Metric', y='Value')
+
+                return render(request, 'resultsSocial.html',{'fig': fig.to_json,'fig_accuracy':fig_accuracy.to_json()})
 
             except Exception as e:
                 errore = "Error when calculating AIF360 metrics: " + str(e)

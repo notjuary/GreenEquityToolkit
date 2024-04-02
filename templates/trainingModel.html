@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f1f1;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #48a363;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        section {
+            margin-bottom: 20px;
+        }
+
+        .introduzione {
+            text-align: center;
+            margin: 0 auto;
+            max-width: 800px;
+        }
+
+        .introduzione h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .introduzione p {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .introduzione a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #000;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        footer {
+            background-color: #48a363;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px;
+            font-size: 18px;
+            color: #333;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        input, select {
+            width: 100%;
+            margin: 10px;
+            font-size: 16px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #48a363;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #71b084;
+        }
+        
+        input[type="file"]::before {
+    content: "Choose the file...";
+    color: #999;
+    display: inline-block;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 6px 12px;
+    outline: none;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    cursor: pointer;
+    text-shadow: 1px 1px #fff;
+    font-weight: 700;
+    font-size: 10pt;
+}
+
+input[type="file"] {
+    color: transparent;
+}
+
+a.button {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #48a363;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    width: 100%;
+}
+
+a.button:hover {
+    background-color: #71b084;
+}
+
+    </style>
+    {% include 'menu.html' %}
+    <meta charset="UTF-8">
+    <title>Choose pre-trained ML model</title>
+</head>
+<body>
+<form action="/sostenibilita/machineLearningTraining" method="post" enctype="multipart/form-data">
+    <section class="introduzione">
+        {% csrf_token %}
+        <h2>Upload ML model to evaluate energy efficiency of machine lerarning models pre-trained</h2>
+        <p>In this section, the energy efficiency of pre-trained ML models can be evaluated or additional ones can be added. </p>
+        {{ form.modelTypeTrained.label_tag }} {{ form.modelTypeTrained }}
+        {{ form.countryIsoCode.label_tag }} {{ form.countryIsoCode }}
+        {{ form.inferenceDevice.label_tag }} {{ form.inferenceDevice }}
+        {{ form.numInferences.label_tag }} {{ form.numInferences }}
+       
+        <input type="submit" value="Upload">
+       <a href="/sostenibilita/trainingFile" class="button">Add model</a>
+    </section>
+</form>
+<section class="introduzione">
+    <h4>
+        CodeCarbon
+    </h4>    
+    <p>
+        By uploading the required resources, CodeCarbon will allow you to have information regarding energy consumption and emission release during model runs
+    </p>
+    
+    <h4>
+        Pre-trained models available
+    </h4>
+    
+    <p>
+        DistilBERT is a "distilled" version of BERT that is smaller and faster, but still retains a good deal of the performance of the original BERT model. This makes it an ideal choice for applications where computational efficiency is important.
+ Despite its smaller size, DistilBERT has shown comparable performance to BERT on a number of natural language processing tasks, including text classification, which is the main task of the GLUE MRPC dataset.
+DistilBERT requires fewer resources for training and inference than larger models such as BERT, which means that it also yields less CO2
+    </p>
+</section>
+</body>
+</html>
