@@ -1,0 +1,167 @@
+Model_Name, Bias_Leaf_Category,First_Level_Category,Intermediate_Category
+https://huggingface.co/openai/clip-vit-large-patch14,class bias,social,status
+https://huggingface.co/openai/clip-vit-large-patch14,race bias,population,personal
+https://huggingface.co/openai/clip-vit-large-patch14,gender bias,population,personal
+https://huggingface.co/openai/clip-vit-large-patch14,age bias,population,personal
+https://huggingface.co/openai/clip-vit-base-patch32,class bias,social,status
+https://huggingface.co/openai/clip-vit-base-patch32,race bias,population,personal
+https://huggingface.co/openai/clip-vit-base-patch32,gender bias,population,personal
+https://huggingface.co/openai/clip-vit-base-patch32,age bias,population,personal
+https://huggingface.co/openai/clip-vit-base-patch16,class bias,social,status
+https://huggingface.co/openai/clip-vit-base-patch16,race bias,population,personal
+https://huggingface.co/openai/clip-vit-base-patch16,gender bias,population,personal
+https://huggingface.co/openai/clip-vit-base-patch16,age bias,population,personal
+https://huggingface.co/runwayml/stable-diffusion-v1-5,occupation and social bias,social,status
+https://huggingface.co/runwayml/stable-diffusion-v1-5,culture,social,society
+https://huggingface.co/CompVis/stable-diffusion-v1-4,occupation and social bias,social,status
+https://huggingface.co/CompVis/stable-diffusion-v1-4,culture,social,society
+https://huggingface.co/stabilityai/stable-diffusion-2-1,occupation and social bias,social,status
+https://huggingface.co/stabilityai/stable-diffusion-2-1,sexual content,content production,inappropriate content
+https://huggingface.co/stabilityai/stable-diffusion-2-1-base,occupation and social bias,social,status
+https://huggingface.co/stabilityai/stable-diffusion-2-1-base,race bias,population,personal
+https://huggingface.co/stabilityai/stable-diffusion-2-1-base,sexual content,content production,inappropriate content
+https://huggingface.co/stabilityai/stable-diffusion-2-1-base,culture,social,society
+https://huggingface.co/stabilityai/stable-diffusion-2-1-base,religious bias,social,society
+https://huggingface.co/facebook/dpr-question_encoder-single-nq-base,class bias,social,status
+https://huggingface.co/facebook/dpr-question_encoder-single-nq-base,occupation and social bias,social,status
+https://huggingface.co/runwayml/stable-diffusion-inpainting,occupation and social bias,social,status
+https://huggingface.co/runwayml/stable-diffusion-inpainting,culture,social,society
+https://huggingface.co/stabilityai/stable-diffusion-2,historical and current stereotypes,historical,historical
+https://huggingface.co/stabilityai/stable-diffusion-2,sexual content,content production,inappropriate content
+https://huggingface.co/stabilityai/stable-diffusion-2,culture,social,society
+https://huggingface.co/stabilityai/stable-diffusion-2,race bias,population,personal
+https://huggingface.co/stabilityai/stable-diffusion-2,religious bias,social,society
+https://huggingface.co/openai/whisper-tiny.en,gender bias,population,personal
+https://huggingface.co/openai/whisper-tiny.en,race bias,population,personal
+https://huggingface.co/openai/whisper-tiny.en,age bias,population,personal
+https://huggingface.co/openai/whisper-tiny.en,demographic criteria,population,location
+https://huggingface.co/openai/whisper-tiny.en,geographic,population,location
+https://huggingface.co/openai/whisper-tiny,gender bias,population,personal
+https://huggingface.co/openai/whisper-tiny,race bias,population,personal
+https://huggingface.co/openai/whisper-tiny,age bias,population,personal
+https://huggingface.co/openai/whisper-tiny,demographic criteria,population,location
+https://huggingface.co/openai/whisper-tiny,geographic,population,location
+https://huggingface.co/openai/whisper-large-v2,gender bias,population,personal
+https://huggingface.co/openai/whisper-large-v2,race bias,population,personal
+https://huggingface.co/openai/whisper-large-v2,age bias,population,personal
+https://huggingface.co/openai/whisper-large-v2,demographic criteria,population,location
+https://huggingface.co/TalTechNLP/voxlingua107-epaca-tdnn,gender bias,population,personal
+https://huggingface.co/TalTechNLP/voxlingua107-epaca-tdnn,age bias,population,personal
+https://huggingface.co/TalTechNLP/voxlingua107-epaca-tdnn,foreign accent,content production,speech
+https://huggingface.co/TalTechNLP/voxlingua107-epaca-tdnn,popularity bias,popularity,popularity
+https://huggingface.co/TalTechNLP/voxlingua107-epaca-tdnn,speech disorders,content production,speech
+https://huggingface.co/openai/whisper-small,gender bias,population,personal
+https://huggingface.co/openai/whisper-small,race bias,population,personal
+https://huggingface.co/openai/whisper-small,age bias,population,personal
+https://huggingface.co/openai/whisper-small,geographic,population,location
+https://huggingface.co/openai/whisper-base,gender bias,population,personal
+https://huggingface.co/openai/whisper-base,race bias,population,personal
+https://huggingface.co/openai/whisper-base,age bias,population,personal
+https://huggingface.co/openai/whisper-base,geographic,population,location
+https://huggingface.co/openai/whisper-medium,gender bias,population,personal
+https://huggingface.co/openai/whisper-medium,race bias,population,personal
+https://huggingface.co/openai/whisper-medium,age bias,population,personal
+https://huggingface.co/openai/whisper-medium,demographic criteria,population,location
+https://huggingface.co/openai/whisper-medium,gender bias,population,personal
+https://huggingface.co/bert-base-uncased,gender bias,population,personal
+https://huggingface.co/gpt2,gender bias,population,personal
+https://huggingface.co/gpt2,race bias,population,personal
+https://huggingface.co/gpt2,religious bias,social,society
+https://huggingface.co/distilbert-base-uncased,race bias,population,personal
+https://huggingface.co/distilbert-base-uncased,gender bias,population,personal
+https://huggingface.co/bert-base-cased,gender bias,population,personal
+https://huggingface.co/roberta-base,gender bias,population,personal
+https://huggingface.co/roberta-base,race bias,population,personal
+https://huggingface.co/albert-base-v2,gender bias,population,personal
+https://huggingface.co/distilroberta-base,gender bias,population,personal
+https://huggingface.co/distilroberta-base,class bias,social,status
+https://huggingface.co/distilroberta-base,occupation and social bias,social,status
+https://huggingface.co/distilbert-base-uncased-finetuned-sst-2-english,geographic,population,location
+https://huggingface.co/distilbert-base-cased-distilled-squad,occupation and social bias,social,status
+https://huggingface.co/distilbert-base-cased-distilled-squad,class bias,social,status
+https://huggingface.co/distilbert-base-cased-distilled-squad,historical and current stereotypes,historical,historical
+https://huggingface.co/roberta-large,gender bias,population,personal
+https://huggingface.co/dslim/bert-base-NER,time and domain dependent,historical,historical
+https://huggingface.co/Davlan/bert-base-multilingual-cased-ner-hrl,time and domain dependent,historical,historical
+https://huggingface.co/Davlan/distilbert-base-multilingual-cased-ner-hrl,time and domain dependent,historical,historical
+https://huggingface.co/bert-base-chinese,historical and current stereotypes,historical,historical
+https://huggingface.co/bert-large-uncased,gender bias,population,personal
+https://huggingface.co/EleutherAI/gpt-j-6B,offensive language,content production,inappropriate content
+https://huggingface.co/openai-gpt,class bias,social,status
+https://huggingface.co/openai-gpt,historical and current stereotypes,historical,historical
+https://huggingface.co/openai-gpt,occupation and social bias,social,status
+https://huggingface.co/distilgpt2,historical and current stereotypes,historical,historical
+https://huggingface.co/distilgpt2,gender bias,population,personal
+https://huggingface.co/distilgpt2,class bias,social,status
+https://huggingface.co/distilgpt2,race bias,population,personal
+https://huggingface.co/camembert-base,historical and current stereotypes,historical,historical
+https://huggingface.co/camembert-base,offensive language,content production,inappropriate content
+https://huggingface.co/gpt2-medium,gender bias,population,personal
+https://huggingface.co/gpt2-medium,occupation and social bias,social,status
+https://huggingface.co/gpt2-medium,offensive language,content production,inappropriate content
+https://huggingface.co/gpt2-medium,historical and current stereotypes,historical,historical
+https://huggingface.co/nbroad/ESG-BERT,class bias,social,status
+https://huggingface.co/nbroad/ESG-BERT,occupation and social bias,social,status
+https://huggingface.co/facebook/opt-1.3b,gender bias,population,personal
+https://huggingface.co/distilbert-base-multilingual-cased,class bias,social,status
+https://huggingface.co/distilbert-base-multilingual-cased,occupation and social bias,social,status
+https://huggingface.co/gpt2-large,gender bias,population,personal
+https://huggingface.co/gpt2-large,historical and current stereotypes,historical,historical
+https://huggingface.co/gpt2-large,occupation and social bias,social,status
+https://huggingface.co/gpt2-large,class bias,social,status
+https://huggingface.co/gpt2-large,offensive language,content production,inappropriate content
+https://huggingface.co/xlm-roberta-large-finetuned-conll03-english,occupation and social bias,social,status
+https://huggingface.co/xlm-roberta-large-finetuned-conll03-english,historical and current stereotypes,historical,historical
+https://huggingface.co/bert-base-multilingual-uncased,gender bias,population,personal
+https://huggingface.co/bert-base-multilingual-uncased,race bias,population,personal
+https://huggingface.co/dslim/bert-large-NER,time and domain dependent,historical,historical
+https://huggingface.co/google/flan-t5-xxl,offensive language,content production,inappropriate content
+https://huggingface.co/google/flan-t5-xl,offensive language,content production,inappropriate content
+https://huggingface.co/google/flan-t5-xl,sexual content,content production,inappropriate content
+https://huggingface.co/Helsinki-NLP/opus-mt-en-de,historical and current stereotypes,historical,historical
+https://huggingface.co/EleutherAI/gpt-neo-2.7B,offensive language,content production,inappropriate content
+https://huggingface.co/facebook/opt-125m,popularity bias,popularity,popularity
+https://huggingface.co/roberta-base-openai-detector,class bias,social,status
+https://huggingface.co/roberta-base-openai-detector,historical and current stereotypes,historical,historical
+https://huggingface.co/roberta-base-openai-detector,offensive language,content production,inappropriate content
+https://huggingface.co/Helsinki-NLP/opus-mt-ru-en,historical and current stereotypes,historical,historical
+https://huggingface.co/Helsinki-NLP/opus-mt-ru-en,offensive language,content production,inappropriate content
+https://huggingface.co/gpt2-xl,class bias,social,status
+https://huggingface.co/gpt2-xl,occupation and social bias,social,status
+https://huggingface.co/gpt2-xl,gender bias,population,personal
+https://huggingface.co/gpt2-xl,historical and current stereotypes,historical,historical
+https://huggingface.co/klue/bert-base,popularity bias,popularity,popularity
+https://huggingface.co/bigscience/bloom-560m,offensive language,content production,inappropriate content
+https://huggingface.co/bigscience/bloom-560m,historical and current stereotypes,historical,historical
+https://huggingface.co/bigscience/bloom-560m,sexual content,content production,inappropriate content
+https://huggingface.co/unitary/toxic-bert,offensive language,content production,inappropriate content
+https://huggingface.co/unitary/toxic-bert,class bias,social,status
+https://huggingface.co/unitary/toxic-bert,race bias,population,personal
+https://huggingface.co/ibm/qcpg-sentences,class bias,social,status
+https://huggingface.co/ibm/qcpg-sentences,occupation and social bias,social,status
+https://huggingface.co/google/flan-t5-base,offensive language,content production,inappropriate content
+https://huggingface.co/bert-large-cased,gender bias,population,personal
+https://huggingface.co/EleutherAI/gpt-neo-1.3B,offensive language,content production,inappropriate content
+https://huggingface.co/google/flan-t5-large,offensive language,content production,inappropriate content
+https://huggingface.co/EleutherAI/gpt-neo-125M,offensive language,content production,inappropriate content
+https://huggingface.co/decapoda-research/llama-7b-hf,offensive language,content production,inappropriate content
+https://huggingface.co/google/flan-t5-small,offensive language,content production,inappropriate content
+https://huggingface.co/martin-ha/toxic-comment-model,popularity bias,popularity,popularity
+https://huggingface.co/Helsinki-NLP/opus-mt-zh-en,historical and current stereotypes,historical,historical
+https://huggingface.co/Helsinki-NLP/opus-mt-zh-en,offensive language,content production,inappropriate content
+https://huggingface.co/facebook/opt-66b,offensive language,content production,inappropriate content
+https://huggingface.co/facebook/opt-66b,gender bias,population,personal
+https://huggingface.co/facebook/opt-350m,gender bias,population,personal
+https://huggingface.co/bert-large-uncased-whole-word-masking,gender bias,population,personal
+https://huggingface.co/roberta-large-mnli,class bias,social,status
+https://huggingface.co/roberta-large-mnli,occupation and social bias,social,status
+https://huggingface.co/roberta-large-mnli,historical and current stereotypes,historical,historical
+https://huggingface.co/roberta-large-mnli,time and domain dependent,historical,historical
+https://huggingface.co/roberta-large-mnli,offensive language,content production,inappropriate content
+https://huggingface.co/bigscience/bloom,class bias,social,status
+https://huggingface.co/bigscience/bloom,offensive language,content production,inappropriate content
+https://huggingface.co/bigscience/bloom,historical and current stereotypes,historical,historical
+https://huggingface.co/bigscience/bloom,sexual content,content production,inappropriate content
+https://huggingface.co/facebook/opt-30b,gender bias,population,personal
+https://huggingface.co/albert-base-v1,gender bias,population,personal
+https://huggingface.co/albert-base-v1,occupation and social bias,social,status

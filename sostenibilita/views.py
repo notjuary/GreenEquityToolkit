@@ -56,6 +56,23 @@ def downloadFileEmission(request):
 
     return response
 
+#Function for redirecting to the pre-trained models section of social sustainability
+def redirectModelsPreaddestratedSocial(request):
+    df1=pd.read_csv('isBiased.csv',)
+    data=df1.to_dict('records')
+    df2=pd.read_csv('final_bias_categories_with_levels.csv')
+    data2=df2.to_dict('records')
+
+    merged_data = []
+
+    for item1 in data:
+        for item2 in data2:
+            if item1['Model_Name'] == item2['Model_Name']:
+                merged_item = {**item1, **item2}
+                merged_data.append(merged_item)
+
+    print(merged_data)
+    return render(request,'modelsPreaddestratedSocial.html',{'data': merged_data})
 
 
 # Redirect function for loading the dataset

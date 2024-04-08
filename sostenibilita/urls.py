@@ -10,7 +10,8 @@ urlpatterns = [
     path('sostenibilita/uploadFileSocial', views.uploadFileSocial, name='uploadFileSocial'),
     path('sostenibilita/uploadDataset',views.uploadDataset, name='uploadDataset'),
     path('sostenibilita/redirectUploadDataset',views.redirectUploadDataset, name='redirectUploadDataset'),
-    path('sostenibilita/downloadFileEmission',views.downloadFileEmission, name='downloadFileEmission')
+    path('sostenibilita/downloadFileEmission',views.downloadFileEmission, name='downloadFileEmission'),
+    path('sostenibilita/redirectModelsPreaddestratedSocial',views.redirectModelsPreaddestratedSocial, name='redirectModelsPreaddestratedSocial'),
 
 
 ]
