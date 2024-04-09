@@ -2,7 +2,6 @@ import json
 
 import joblib
 import pandas as pd
-import plotly
 import yaml
 from aif360.datasets import BinaryLabelDataset
 from aif360.metrics import ClassificationMetric, BinaryLabelDatasetMetric
@@ -34,10 +33,8 @@ import onnxruntime
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 import plotly.express as px
-import seaborn as sns
 import pandas as pd
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
+
 import json
 
 output_dir = '.'
@@ -56,11 +53,21 @@ def downloadFileEmission(request):
 
     return response
 
+def clean_dict_keys(data):
+    cleaned_data = []
+    for item in data:
+        cleaned_item = {key.strip().lower().replace('-', ''): value for key, value in item.items()}
+        cleaned_data.append(cleaned_item)
+    return cleaned_data
+
+
+
+
 #Function for redirecting to the pre-trained models section of social sustainability
 def redirectModelsPreaddestratedSocial(request):
     df1=pd.read_csv('isBiased.csv',)
     data=df1.to_dict('records')
-    df2=pd.read_csv('final_bias_categories_with_levels.csv')
+    df2=pd.read_csv('final_bias_categories.csv')
     data2=df2.to_dict('records')
 
     merged_data = []
@@ -71,6 +78,8 @@ def redirectModelsPreaddestratedSocial(request):
                 merged_item = {**item1, **item2}
                 merged_data.append(merged_item)
 
+
+    merged_data = clean_dict_keys(merged_data)
     print(merged_data)
     return render(request,'modelsPreaddestratedSocial.html',{'data': merged_data})
 

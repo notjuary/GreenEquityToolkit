@@ -1,0 +1,358 @@
+Model_Name,Downloads,Likes,Pipeline_Tag,Task,IsBiased1,IsBiased2,IsBiased-FINAL
+https://huggingface.co/bert-base-uncased,47032389,611,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/emilyalsentzer/Bio_ClinicalBERT,25732590,107,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/gpt2,17502788,732,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/xlm-roberta-base,14766501,207,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/distilbert-base-uncased,8982070,150,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/bert-base-cased,7471501,79,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/roberta-base,7046986,128,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/xlm-roberta-large,6875791,104,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/t5-base,6196125,164,translation,Natural Language Processing,no,no,no
+https://huggingface.co/albert-base-v2,4431889,43,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/StanfordAIMI/stanford-deidentifier-base,4401240,37,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/distilroberta-base,3888372,46,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/distilbert-base-uncased-finetuned-sst-2-english,2684468,168,text-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/facebook/bart-large-mnli,2589433,384,zero-shot-classification,Natural Language Processing,no,no,no
+https://huggingface.co/philschmid/bart-large-cnn-samsum,2389110,127,summarization,Natural Language Processing,no,no,no
+https://huggingface.co/bert-base-multilingual-cased,2297551,109,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/distilbert-base-cased-distilled-squad,2206566,89,question-answering,Natural Language Processing,yes,yes,yes
+https://huggingface.co/Helsinki-NLP/opus-mt-en-es,2171498,24,translation,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2,2163353,302,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/cl-tohoku/bert-base-japanese-whole-word-masking,2072505,31,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/t5-small,2060757,75,translation,Natural Language Processing,no,no,no
+https://huggingface.co/roberta-large,1898275,91,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/yiyanghkust/finbert-tone,1865307,61,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/cardiffnlp/twitter-xlm-roberta-base-sentiment,1861657,72,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/dslim/bert-base-NER,1768475,127,token-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/ProsusAI/finbert,1677080,175,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/Davlan/bert-base-multilingual-cased-ner-hrl,1596214,34,token-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/ckiplab/bert-base-chinese-ner,1561160,31,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/snrspeaks/t5-one-line-summary,1458583,67,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/cross-encoder/ms-marco-MiniLM-L-6-v2,1451070,10,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment,1444371,142,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/Davlan/distilbert-base-multilingual-cased-ner-hrl,1314421,8,token-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/bert-base-chinese,1312161,255,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/bert-large-uncased-whole-word-masking-finetuned-squad,1304704,64,question-answering,Natural Language Processing,no,no,no
+https://huggingface.co/bert-large-uncased,1124426,19,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/shibing624/text2vec-base-chinese,1093475,34,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/EleutherAI/gpt-j-6B,1083874,768,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/papluca/xlm-roberta-base-language-detection,1080798,68,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest,1051389,106,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/all-mpnet-base-v2,990586,105,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/openai-gpt,880228,52,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/distilgpt2,856530,151,text-generation,Natural Language Processing,yes,no,yes
+https://huggingface.co/deepset/roberta-base-squad2,856034,238,question-answering,Natural Language Processing,no,no,no
+https://huggingface.co/Seethal/sentiment_analysis_generic_dataset,822396,8,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/facebook/bart-large-cnn,814187,289,summarization,Natural Language Processing,no,no,no
+https://huggingface.co/camembert-base,807241,29,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/gpt2-medium,797022,33,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/PygmalionAI/pygmalion-6b,754821,253,conversational,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/multi-qa-mpnet-base-dot-v1,749279,44,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/nbroad/ESG-BERT,712664,28,text-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/Jean-Baptiste/camembert-ner,709597,60,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/j-hartmann/emotion-english-distilroberta-base,708863,115,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/dmis-lab/biobert-base-cased-v1.2,705504,14,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/paraphrase-MiniLM-L6-v2,656483,34,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/prithivida/parrot_paraphraser_on_T5,646252,92,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/facebook/opt-1.3b,619284,39,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2,589589,17,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/joeddav/xlm-roberta-large-xnli,579338,90,zero-shot-classification,Natural Language Processing,no,no,no
+https://huggingface.co/distilbert-base-multilingual-cased,569765,34,fill-mask,Natural Language Processing,yes,yes ,yes
+https://huggingface.co/finiteautomata/bertweet-base-sentiment-analysis,513683,52,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/bert-base-nli-mean-tokens,512843,15,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/google/t5-v1_1-base,508596,29,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/ml6team/keyphrase-extraction-distilbert-inspec,503840,6,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/neuralmind/bert-base-portuguese-cased,492198,56,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-en-hi,491699,7,translation,Natural Language Processing,no,no,no
+https://huggingface.co/valhalla/distilbart-mnli-12-1,473826,29,zero-shot-classification,Natural Language Processing,no,no,no
+https://huggingface.co/fabiochiu/t5-base-tag-generation,448048,14,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2,443459,112,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/t5-large,403428,46,translation,Natural Language Processing,no,no,no
+https://huggingface.co/sshleifer/distilbart-cnn-12-6,401890,112,summarization,Natural Language Processing,no,no,no
+https://huggingface.co/finiteautomata/beto-sentiment-analysis,390900,18,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/flair/ner-english-fast,381473,7,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/mrm8488/t5-base-finetuned-common_gen,374073,28,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/prithivida/parrot_adequacy_model,365006,3,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/gpt2-large,363058,67,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/vinai/phobert-base,362343,9,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/Jean-Baptiste/roberta-large-ner-english,359588,35,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/facebook/m2m100_418M,358980,62,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-es-en,356670,16,translation,Natural Language Processing,no,no,no
+https://huggingface.co/deepset/minilm-uncased-squad2,354403,25,question-answering,Natural Language Processing,no,no,no
+https://huggingface.co/dbmdz/bert-base-german-cased,347761,7,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2,341625,64,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/google/pegasus-xsum,341241,86,summarization,Natural Language Processing,no,no,no
+https://huggingface.co/microsoft/deberta-v3-large,338020,66,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/xlm-roberta-large-finetuned-conll03-english,329588,48,token-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/joeddav/distilbert-base-uncased-go-emotions-student,325444,27,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/dslim/bert-base-NER-uncased,314299,10,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/bert-base-multilingual-uncased,310694,34,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/Helsinki-NLP/opus-mt-en-fr,308604,11,translation,Natural Language Processing,no,no,no
+https://huggingface.co/uer/albert-base-chinese-cluecorpussmall,307490,10,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/bert-base-german-cased,305367,30,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/dslim/bert-large-NER,292792,38,token-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/rinna/japanese-gpt-1b,287765,66,text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/google/flan-t5-xxl,286610,461,text2text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/microsoft/deberta-v2-xlarge,286287,11,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/siebert/sentiment-roberta-large-english,274375,45,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/neulab/codebert-java,267344,3,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/hfl/chinese-bert-wwm-ext,259349,65,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/facebook/blenderbot-400M-distill,257362,142,conversational,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-de-en,254039,10,translation,Natural Language Processing,no,no,no
+https://huggingface.co/huggingface/CodeBERTa-small-v1,252229,32,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/prithivida/parrot_fluency_model,250541,0,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/tuner007/pegasus_paraphrase,246634,114,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/google/flan-t5-xl,246391,137,text2text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/Helsinki-NLP/opus-mt-en-de,245592,9,translation,Natural Language Processing,yes,no,yes
+https://huggingface.co/sentence-transformers/distiluse-base-multilingual-cased-v1,242097,18,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/distiluse-base-multilingual-cased-v2,237400,44,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/ckiplab/bert-base-chinese-ws,237114,5,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/multi-qa-MiniLM-L6-cos-v1,236364,45,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/nghuyong/ernie-3.0-base-zh,234983,14,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-fr-en,232422,13,translation,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/paraphrase-mpnet-base-v2,230251,14,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/facebook/esm2_t12_35M_UR50D,229378,3,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/kykim/bertshared-kor-base,226345,5,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/google/pegasus-cnn_dailymail,221115,27,summarization,Natural Language Processing,no,no,no
+https://huggingface.co/xlnet-base-cased,219407,28,text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/EleutherAI/gpt-neo-2.7B,217461,264,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/facebook/opt-125m,216288,48,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/ckiplab/bert-base-chinese-pos,210025,9,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/dbmdz/bert-large-cased-finetuned-conll03-english,205461,16,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/roberta-base-openai-detector,204416,57,text-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/Helsinki-NLP/opus-mt-ROMANCE-en,203335,0,translation,Natural Language Processing,no,no,no
+https://huggingface.co/skt/kogpt2-base-v2,201412,17,text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-en-id,201048,2,translation,Natural Language Processing,no,no,no
+https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment,199934,96,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-ru-en,199040,17,translation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-mnli-xnli,196480,100,zero-shot-classification,Natural Language Processing,no,yes,no
+https://huggingface.co/deepset/bert-large-uncased-whole-word-masking-squad2,192567,16,question-answering,Natural Language Processing,no,no,no
+https://huggingface.co/mrm8488/t5-base-finetuned-summarize-news,191230,12,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/gpt2-xl,190319,81,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/ramsrigouthamg/t5_sentence_paraphraser,188362,7,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/flexudy/t5-base-multi-sentence-doctor,187948,29,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext,187715,70,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/GroNLP/bert-base-dutch-cased,185923,10,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/lidiya/bart-large-xsum-samsum,182949,22,summarization,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-en-sv,180238,1,translation,Natural Language Processing,no,no,no
+https://huggingface.co/Rostlab/prot_bert,177832,33,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/flair/ner-english-ontonotes,177579,6,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/klue/bert-base,175510,14,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/sentence-transformers/multi-qa-mpnet-base-cos-v1,174830,7,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/Rakib/roberta-base-on-cuad,173076,1,question-answering,Natural Language Processing,no,yes,no
+https://huggingface.co/microsoft/graphcodebert-base,171939,13,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/hf-internal-testing/tiny-xlm-roberta,168477,0,text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/bigscience/bloom-560m,168159,97,text-generation,Natural Language Processing,yes,no,yes
+https://huggingface.co/cointegrated/rubert-tiny,167456,14,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/unitary/toxic-bert,166351,49,text-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/Amisha182001/autodescgpt2,165608,0,text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/facebook/nllb-200-distilled-600M,163272,98,translation,Natural Language Processing,no,no,no
+https://huggingface.co/bhadresh-savani/distilbert-base-uncased-emotion,160789,59,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/facebook/wmt19-de-en,156497,3,translation,Natural Language Processing,no,no,no
+https://huggingface.co/cl-tohoku/bert-base-japanese,152040,9,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/ibm/qcpg-sentences,150940,13,text2text-generation,Natural Language Processing,yes,yes ,yes
+https://huggingface.co/facebook/wmt19-en-de,150164,6,translation,Natural Language Processing,no,no,no
+https://huggingface.co/bigscience/test-bloomd-6b3,148357,1,text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/Salesforce/codet5-base,148329,52,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/cl-tohoku/bert-base-japanese-char,147191,7,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/google/flan-t5-base,139611,117,text2text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/facebook/wmt19-en-ru,138643,6,translation,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-en-ROMANCE,137295,4,translation,Natural Language Processing,no,no,no
+https://huggingface.co/hfl/chinese-roberta-wwm-ext-large,137226,30,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/nikcheerla/nooks-amd-detection-realtime,134647,0,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/flair/ner-english,134427,14,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/neulab/codebert-javascript,134269,2,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/nikcheerla/nooks-amd-detection-v2-full,133394,0,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/dccuchile/bert-base-spanish-wwm-uncased,133084,24,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/hf-internal-testing/tiny-random-GPTNeoXForCausalLM,129238,0,text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/all-distilroberta-v1,129143,4,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/nli-mpnet-base-v2,128794,3,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-it-en,126697,5,translation,Natural Language Processing,no,no,no
+https://huggingface.co/nlpaueb/legal-bert-small-uncased,125817,12,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/bert-large-cased,124264,5,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/facebook/wmt19-ru-en,124096,8,translation,Natural Language Processing,no,no,no
+https://huggingface.co/t5-3b,123927,9,translation,Natural Language Processing,no,no,no
+https://huggingface.co/valhalla/longformer-base-4096-finetuned-squadv1,123853,8,question-answering,Natural Language Processing,no,no,no
+https://huggingface.co/microsoft/deberta-v3-base,123734,72,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/google/mt5-base,123537,55,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/EleutherAI/gpt-neo-1.3B,123293,137,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/deepset/roberta-base-squad2-covid,123171,4,question-answering,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/LaBSE,123113,46,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/google/flan-t5-large,122022,115,text2text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/sentence-transformers/distilbert-base-nli-stsb-mean-tokens,118565,5,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/EleutherAI/gpt-neo-125M,118052,73,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/decapoda-research/llama-7b-hf,117804,245,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/hf-internal-testing/tiny-bert-for-token-classification,114126,2,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-id-en,112817,3,translation,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/all-MiniLM-L12-v1,111451,4,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/google/flan-t5-small,111393,48,text2text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/cross-encoder/ms-marco-MiniLM-L-12-v2,110609,16,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/hfl/chinese-roberta-wwm-ext,110493,105,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/cross-encoder/ms-marco-TinyBERT-L-2,108532,3,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/martin-ha/toxic-comment-model,108413,3,text-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/Helsinki-NLP/opus-mt-zh-en,108022,88,translation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/google/long-t5-tglobal-base,106411,18,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/flair/pos-english,103842,12,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/microsoft/deberta-base,103825,36,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/madhurjindal/autonlp-Gibberish-Detector-492513457,103008,8,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/salti/bert-base-multilingual-cased-finetuned-squad,102818,9,question-answering,Natural Language Processing,no,no,no
+https://huggingface.co/cross-encoder/stsb-roberta-base,102535,0,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/naver/splade-cocondenser-ensembledistil,101507,9,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/facebook/bart-large-xsum,99696,19,summarization,Natural Language Processing,no,no,no
+https://huggingface.co/sshleifer/tiny-marian-en-de,98812,0,text2text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/oliverguhr/german-sentiment-bert,98371,17,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/Gustavosta/MagicPrompt-Stable-Diffusion,97929,316,text-generation,Natural Language Processing,no,no,no
+https://huggingface.co/deprem-ml/deprem-ner,96829,26,token-classification,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/paraphrase-MiniLM-L3-v2,94353,7,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/cl-tohoku/bert-base-japanese-char-v2,93793,2,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/Helsinki-NLP/opus-mt-mul-en,92207,22,translation,Natural Language Processing,no,no,no
+https://huggingface.co/facebook/opt-66b,90418,104,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/microsoft/BiomedVLP-CXR-BERT-general,87621,15,fill-mask,Natural Language Processing,no,no,no
+https://huggingface.co/sentence-transformers/paraphrase-distilroberta-base-v2,87021,4,sentence-similarity,Natural Language Processing,no,no,no
+https://huggingface.co/t5-11b,86651,19,translation,Natural Language Processing,no,no,no
+https://huggingface.co/facebook/opt-350m,85879,35,text-generation,Natural Language Processing,yes,yes,yes
+https://huggingface.co/bert-large-uncased-whole-word-masking,85527,6,fill-mask,Natural Language Processing,yes,yes,yes
+https://huggingface.co/jonas/roberta-base-finetuned-sdg,84468,1,text-classification,Natural Language Processing,no,no,no
+https://huggingface.co/roberta-large-mnli,84420,56,text-classification,Natural Language Processing,yes,yes,yes
+https://huggingface.co/jonatasgrosman/wav2vec2-large-xlsr-53-english,10402498,29,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/facebook/wav2vec2-large-960h-lv60-self,641089,71,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/yongjian/wav2vec2-large-a,257703,5,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/jbetker/wav2vec2-large-robust-ft-libritts-voxpopuli,243139,4,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/facebook/wav2vec2-base-960h,210238,108,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/harshit345/xlsr-wav2vec-speech-emotion-recognition,172353,20,audio-classification,Audio,no,no,no
+https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593,78373,16,audio-classification,Audio,no,no,no
+https://huggingface.co/facebook/wav2vec2-xlsr-53-espeak-cv-ft,66414,11,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/openai/whisper-tiny.en,66381,35,automatic-speech-recognition,Audio,yes,yes,yes
+https://huggingface.co/ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition,61258,38,audio-classification,Audio,no,no,no
+https://huggingface.co/maxidl/wav2vec2-large-xlsr-german,59966,0,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/openai/whisper-tiny,43552,41,automatic-speech-recognition,Audio,yes,yes,yes
+https://huggingface.co/ceyda/wav2vec2-base-760-turkish,42047,2,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/openai/whisper-large-v2,41661,279,automatic-speech-recognition,Audio,no,yes,yes
+https://huggingface.co/TalTechNLP/voxlingua107-epaca-tdnn,39668,22,audio-classification,Audio,yes,yes,yes
+https://huggingface.co/openai/whisper-small,39667,37,automatic-speech-recognition,Audio,no,yes,yes
+https://huggingface.co/hf-internal-testing/tiny-random-wav2vec2-conformer,32531,0,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/techiaith/wav2vec2-xlsr-ft-en-cy,32478,1,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/facebook/wav2vec2-xlsr-53-phon-cv-babel-ft,31211,1,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/hf-internal-testing/tiny-random-unispeech,29455,0,audio-classification,Audio,no,no,no
+https://huggingface.co/jonatasgrosman/wav2vec2-large-xlsr-53-russian,28524,12,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/facebook/hubert-large-ls960-ft,22741,27,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/jonatasgrosman/wav2vec2-large-xlsr-53-japanese,22715,9,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/hf-internal-testing/tiny-random-wavlm,22090,0,audio-classification,Audio,no,no,no
+https://huggingface.co/openai/whisper-base,20544,52,automatic-speech-recognition,Audio,no,yes,yes
+https://huggingface.co/comodoro/wav2vec2-xls-r-300m-cs-250,20459,0,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/openai/whisper-medium,19950,40,automatic-speech-recognition,Audio,yes,yes,yes
+https://huggingface.co/jonatasgrosman/wav2vec2-large-xlsr-53-dutch,19568,0,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim,17805,20,audio-classification,Audio,no,no,no
+https://huggingface.co/jonatasgrosman/wav2vec2-large-xlsr-53-portuguese,17615,11,automatic-speech-recognition,Audio,no,no,no
+https://huggingface.co/hf-internal-testing/tiny-random-unispeech-sat,17325,0,audio-classification,Audio,no,no,no
+https://huggingface.co/facebook/unit_hifigan_mhubert_vp_en_es_fr_it3_400k_layer11_km1000_lj_dur,16145,11,text-to-speech,Audio,no,no,no
+https://huggingface.co/openai/clip-vit-large-patch14,10487900,254,zero-shot-image-classification,Computer Vision,yes,yes,yes
+https://huggingface.co/openai/clip-vit-base-patch32,2635106,131,zero-shot-image-classification,Computer Vision,yes,yes,yes
+https://huggingface.co/google/vit-base-patch16-224,970069,155,image-classification,Computer Vision,no,no,no
+https://huggingface.co/openai/clip-vit-base-patch16,270718,18,zero-shot-image-classification,Computer Vision,yes,yes,yes
+https://huggingface.co/CIDAS/clipseg-rd64-refined,228320,19,image-segmentation,Computer Vision,no,no,no
+https://huggingface.co/timm/vit_large_patch14_clip_224.openai_ft_in12k_in1k,223144,13,image-classification,Computer Vision,no,no,no
+https://huggingface.co/hustvl/yolos-tiny,195609,27,object-detection,Computer Vision,no,no,no
+https://huggingface.co/microsoft/resnet-50,188070,27,image-classification,Computer Vision,no,no,no
+https://huggingface.co/microsoft/beit-base-patch16-224-pt22k-ft22k,154108,35,image-classification,Computer Vision,no,no,no
+https://huggingface.co/openai/clip-vit-large-patch14-336,123216,22,zero-shot-image-classification,Computer Vision,no,no,no
+https://huggingface.co/hf-internal-testing/tiny-random-vit,122667,1,image-classification,Computer Vision,no,no,no
+https://huggingface.co/facebook/detr-resnet-50,119312,124,object-detection,Computer Vision,no,no,no
+https://huggingface.co/google/owlvit-base-patch32,104664,28,object-detection,Computer Vision,no,no,no
+https://huggingface.co/facebook/detr-resnet-101,97954,29,object-detection,Computer Vision,no,no,no
+https://huggingface.co/hf-internal-testing/tiny-random-resnet,92590,0,image-classification,Computer Vision,no,no,no
+https://huggingface.co/nateraw/vit-age-classifier,87907,8,image-classification,Computer Vision,no,no,no
+https://huggingface.co/runwayml/stable-diffusion-v1-5,3237345,6025,text-to-image,Multimodal,yes,yes,yes
+https://huggingface.co/facebook/bart-large,1668941,42,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/dmis-lab/biobert-v1.1,1646045,21,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/CompVis/stable-diffusion-v1-4,1039961,4908,text-to-image,Multimodal,yes,yes,yes
+https://huggingface.co/impira/layoutlm-document-qa,1000397,151,document-question-answering,Multimodal,no,no,no
+https://huggingface.co/stabilityai/stable-diffusion-2-1,817743,1659,text-to-image,Multimodal,yes,yes,yes
+https://huggingface.co/nlpconnect/vit-gpt2-image-captioning,800580,193,image-to-text,Multimodal,no,no,no
+https://huggingface.co/microsoft/codebert-base,774500,76,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/microsoft/wavlm-large,701660,15,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/indobenchmark/indobert-base-p1,701562,2,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/princeton-nlp/unsup-simcse-roberta-base,700866,0,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/facebook/hubert-large-ll60k,698510,8,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/prompthero/openjourney,520068,1924,text-to-image,Multimodal,no,no,no
+https://huggingface.co/stabilityai/stable-diffusion-2-1-base,514424,221,text-to-image,Multimodal,yes,yes,yes
+https://huggingface.co/YituTech/conv-bert-base,508286,2,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/facebook/bart-base,418039,65,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/hakurei/waifu-diffusion,350868,1836,text-to-image,Multimodal,no,no,no
+https://huggingface.co/allenai/specter,297565,46,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/GanjinZero/UMLSBert_ENG,281238,5,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/facebook/dpr-question_encoder-single-nq-base,255897,10,feature-extraction,Multimodal,yes,yes,yes
+https://huggingface.co/google/vit-base-patch16-224-in21k,244743,29,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/runwayml/stable-diffusion-inpainting,243112,988,text-to-image,Multimodal,yes,yes,yes
+https://huggingface.co/hf-internal-testing/tiny-random-BertModel,236990,0,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/stabilityai/stable-diffusion-2,232604,1276,text-to-image,Multimodal,yes,yes,yes
+https://huggingface.co/funnel-transformer/small,216421,4,feature-extraction,Multimodal,no,no,no
+https://huggingface.co/julien-c/wine-quality,205,5,tabular-classification,Tabular,no,no,no
+,,,,,no,no,no
+,,,,,no,no,no
+https://huggingface.co/araffin/ppo-LunarLander-v2,66658,9,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/HumanCompatibleAI/ppo-seals-CartPole-v0,26867,2,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/HumanCompatibleAI/ppo-Pendulum-v1,7507,2,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/JYC333/poca-SoccerTwos-v1,1123,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/NoNameFound/poca-SoccerTwos,1105,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/0xid/poca-SoccerTwos,962,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Agog/Soccer,785,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/agercas/poca-SoccerTwos,636,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/aj555/poca-SoccerTwos,612,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/arnonl/poca-SoccerTwos,602,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/atorre/poca-SoccerTwos-85M,597,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/bitcloud2/SoccerTwos,589,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/chqmatteo/poca-SoccerTwos,584,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/ZhihongDeng/poca-SoccerTwos,582,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/JYC333/poca-SoccerTwos-v2,580,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/ThomasSimonini/ML-Agents-SoccerTwos-Good,580,1,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/cmenasse/poca-SoccerTwos,574,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/akanametov/SoccerTwos,569,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/dfm794/poca-SoccerTwos-2-l,569,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/CoreyMorris/poca-SoccerTwos-be-the-goldfish,567,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Dharkelf/poca-SoccerTwos,567,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/daripaez/poca-SoccerTwos-1,567,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/DanGalt/poca-SoccerTwos,566,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Clawoo/poca-SoccerTwos,564,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Iamvincent/poca-SoccerTwos,563,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Lakoc/poca-SoccerTwos-v2,563,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/dfm794/poca-SoccerTwos-baseline,563,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/davidhajdu/poca-SoccerTwos,562,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/CoreyMorris/poca-SoccerTwos-football-is-life,560,1,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Hatman/poca-SoccerTwos-v1,560,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/antoooooine/poca-SoccerTwos-v2,560,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/atorre/poca-SoccerTwos-50M,560,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Deisler/poca-SoccerTwos,558,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/DiegoD616/poca-SoccerTwos,558,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/FBM/poca-SoccerTwos,558,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/eldraco/poca-SoccerTwos-RoyKent-v4,558,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/ThomasSimonini/ML-Agents-SoccerTwos-Medium,557,1,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/chist/poca-SoccerTwos,557,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/AlexChe/poca-SoccerTwos,556,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/ArneL2206/poca-SoccerTwos,556,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/RegisGraptin/poca-SoccerTwos,556,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/eldraco/poca-SoccerTwos-RoyKent-v3,556,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/PeterDerLustige/poca-SoccerTwos_V3,555,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/ScrappyCoco666/poca-SoccerTwos-2,555,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Segamboam/poca-SoccerTwos,555,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/SuburbanLion/poca-SoccerTwos,555,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/ThomasSimonini/ML-Agents-SoccerTwos-Bad,555,1,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/atorre/poca-SoccerTwos-10M,555,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/atorre/poca-SoccerTwos-20M,555,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/atorre/poca-SoccerTwos-30M,555,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/cfisicaro/poca-SoccerTwos,555,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/akgeni/poca-SoccerTwos5,554,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/akghxhs55/poca-SoccerTwos,554,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/jason1i/poca-SoccerTwos-Extra-Wish2,554,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/UtopiansRareTruth/poca-SoccerTwos,553,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/atorre/poca-SoccerTwos-100M,553,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/dbaibak/poca-SoccerTwos,553,1,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/antoooooine/poca-SoccerTwos,552,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Antiraedus/poca-SoccerTwos,551,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Lakoc/poca-SoccerTwos,551,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/NoNameFound/pocaresnet-SoccerTwos,551,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/Unterwexi/poca-SoccerTwos,551,0,reinforcement-learning,Reinforcement Learning,no,no,no
+https://huggingface.co/philschmid/layoutlm-funsd,428,0,other,OTHER,no,no,no
+https://huggingface.co/ybelkada/blip-image-captioning-base-football-finetuned,29,0,other,OTHER,no,no,no
+https://huggingface.co/keras-io/timeseries_forecasting_for_weather,13,3,time-series-forecasting,OTHER,no,no,no
+https://huggingface.co/wdcqc/starcraft-platform-terrain-32x32,7,8,other,OTHER,no,no,no

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Social sustainability for pre-trained models</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13QqTpwXr/y/eCWkPa8/Qwg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -115,45 +116,135 @@
         th {
             background-color: #f2f2f2;
         }
+    .card {
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: 0.3s;
+            width: 100%;
+            display: none; /* Nascondi tutte le card all'inizio */
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        }
+
+        .container {
+            padding: 2px 16px;
+        }
+         .slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .slider .card {
+            flex: 0 0 auto;
+            margin-right: 16px;
+            scroll-snap-align: start;
+            width: 100%;
+            height: auto;
+            background-color: #fff;
+            padding: 16px;
+            box-sizing: border-box;
+            user-select: none;
+            cursor: pointer;
+        }  
         
+        #prev, #next {
+    background-color: #48a363; /* Colore di sfondo */
+    color: white; /* Colore del testo */
+    border: none; /* Rimuove il bordo */
+    cursor: pointer; /* Cambia il cursore al passaggio del mouse */
+    padding: 15px 32px; /* Padding intorno al testo */
+    text-align: center; /* Allinea il testo al centro */
+    text-decoration: none; /* Rimuove il sottolineato */
+    display: inline-block; /* Rende il pulsante in linea con gli altri elementi */
+    font-size: 16px; /* Dimensione del testo */
+    margin: 4px 2px; /* Margini intorno al pulsante */
+    transition-duration: 0.4s; /* Durata dell'effetto di transizione */
+}
+
+        /* Aggiungi questo per ridimensionare lo slideshow */
+        #slideshow {
+            width: 80%; /* Riduci la larghezza allo 80% della larghezza del viewport */
+            margin: 0 auto; /* Centra lo slideshow orizzontalmente */
+        }
+
+        
+        /* Aggiungi questo per posizionare i pulsanti */
+        #prev {
+            float: left; /* Posiziona il pulsante a sinistra */
+        }
+        #next {
+            float: right; /* Posiziona il pulsante a destra */
+        }
+        
+/* Stile per i pulsanti al passaggio del mouse */
+#prev:hover, #next:hover {
+    background-color: white; /* Colore di sfondo al passaggio del mouse */
+    color: #48a363; /* Colore del testo al passaggio del mouse */
+}
     </style>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
      {% include 'menu.html' %}
 </head>
 <body>
 
-<table>
-    <thead>
-        <tr>
-            <th>Model Name</th>
-            <th>Downloads</th>
-            <th>Pipeline Tag</th>
-            <th>Task</th>
-            <th>Documented bias</th>
-            <th> Bias leaf category</th>
-            <th> First level category</th>
-            <th>Intermediate category</th>
-        </tr>
-    </thead>
-     <tbody>
+
+
+    <div id="slideshow" class="slider">
         {% for row in data %}
-        <tr>
-            <td>{{ row.Model_Name }}</td>
-            <td>{{ row.Downloads }}</td>
-            <td>{{ row.Pipeline_Tag }}</td>
-            <td>{{ row.Task }}</td>
-            {% if row.IsBiased_FINAL == "yes" %}
-                 <td>{{ row.IsBiased_FINAL }}</td>
-                <td> {{ row.Bias_Leaf_Category}}</td>
-                <td>{{ row.First_Level_Category }}</td>
-                <td>{{ row.Intermediate_Category }}</td>
-            {% else %}
-                <td>Not available</td>
-                <td>Not available</td>
-                <td>Not available</td>
-            {%  endif %}
-        </tr>
+        <div class="card">
+            <div class="container">
+                <h2><b>{{ row.model_name }}</b></h2>
+                <p>Downloads: {{ row.downloads }}</p>
+                <p>Pipeline Tag: {{ row.pipeline_tag }}</p>
+                <p>Task: {{ row.task }}</p>
+                {% if row.isbiasedfinal == "yes" %}
+                    <p>Documented bias: {{ row.isbiasedfinal }}</p>
+                    <p>Bias leaf category: {{ row.bias_leaf_category}}</p>
+                    <p>First level category: {{ row.first_level_category }}</p>
+                    <p>Intermediate category: {{ row.intermediate_category }}</p>
+                {% elif row.isbiasedfinal == "no" %}
+                    <p>Documented bias: Not available</p>
+                    <p>Bias leaf category: Not available</p>
+                    <p>First level category: Not available</p>
+                    <p>Intermediate category: Not available</p>
+                {%  endif %}
+            </div>
+        </div>
         {% endfor %}
-    </tbody>
-</table>
+    </div>
+<div style="width: 80%; margin: 0 auto;">
+        <button id="prev"><i class="fas fa-arrow-left">Prev</i></button>
+        <button id="next"><i class="fas fa-arrow-right">Next</i></button>
+    </div>
+
+   <script>
+    $(document).ready(function() {
+        var cards = $("#slideshow .card");
+        var cardIndex = 0;
+
+        function showCard(index) {
+            cards.hide();
+            cards.eq(index).show();
+            cards.eq(index + 1).show();
+            cards.eq(index + 2).show();
+        }
+
+        $("#prev").click(function() {
+            cardIndex = Math.max(cardIndex - 1, 0);
+            showCard(cardIndex);
+        });
+
+        $("#next").click(function() {
+            cardIndex = Math.min(cardIndex + 1, cards.length - 3);
+            showCard(cardIndex);
+        });
+
+        showCard(cardIndex);
+    });
+    </script>
 </body>
 </html>

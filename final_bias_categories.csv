@@ -1,4 +1,4 @@
-Model_Name, Bias_Leaf_Category,First_Level_Category,Intermediate_Category
+Model_Name,Bias_Leaf_Category,First_Level_Category,Intermediate_Category
 https://huggingface.co/openai/clip-vit-large-patch14,class bias,social,status
 https://huggingface.co/openai/clip-vit-large-patch14,race bias,population,personal
 https://huggingface.co/openai/clip-vit-large-patch14,gender bias,population,personal
