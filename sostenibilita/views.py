@@ -1,5 +1,5 @@
 import json
-
+import numpy as np
 import joblib
 import pandas as pd
 import yaml
@@ -312,14 +312,14 @@ def machineLearningTraining(request):
                 }
                 return render(request, '404.html', context)
 
-            if modelTypeTrained == 'distilbert-base-uncased':
-                try:
+
+            try:
                     # Get tokenizer and the pre-trained model
-                    tokenizer = DistilBertTokenizer.from_pretrained(modelTypeTrained)
-                    model = DistilBertForSequenceClassification.from_pretrained(modelTypeTrained)
+                    tokenizer = AutoTokenizer.from_pretrained(modelTypeTrained)
+                    model = AutoModelForSequenceClassification.from_pretrained(modelTypeTrained)
                     model_device = device('cpu') if inferenceDevice == 'CPU' else device('cuda')
                     model.to(model_device)
-                except Exception as e:
+            except Exception as e:
                     errore = f"Error while loading model or tokenizer: {str(e)}"
                     messages.error(request, errore)
                     print(errore)
@@ -327,6 +327,7 @@ def machineLearningTraining(request):
                         'errore': errore,
                     }
                     return render(request, '404.html', context)
+
             try:
                 # Load dataset GLUE MRPC
                 dataset = load_dataset('glue', 'mrpc')
@@ -641,6 +642,8 @@ def uploadFile(request):
 
 # Function for monitoring social sustainability using aif360 with identified metrics
 def uploadFileSocial(request):
+
+
     sess = None
 
     if request.method == 'POST':
@@ -862,6 +865,7 @@ def uploadFileSocial(request):
                 precision = precision_score(data[labelAttribute], predictions)
                 recall = recall_score(data[labelAttribute], predictions)
                 f1 = f1_score(data[labelAttribute], predictions)
+
 
                 # Print metrics
                 print("Mean difference =", mean_difference)

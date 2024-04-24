@@ -73,6 +73,12 @@ class ModelTrainedForm(forms.Form):
 
     MODEL_CHOICES = [
         ('distilbert-base-uncased','DistilBERT'),
+        ('bert-base-uncased', 'BERT'),
+        ('albert-base-v2','ALBERT'),
+        ('roberta-base','RoBERTa'),
+        ('xlm-roberta-base','XLM-RoBERTa'),
+
+
     ]
 
     modelTypeTrained = forms.ChoiceField(choices=MODEL_CHOICES, label="Select the type of model pre-trained ",required=True)

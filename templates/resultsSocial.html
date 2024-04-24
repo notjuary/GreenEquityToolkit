@@ -142,23 +142,19 @@
 <div id="metrics-plot">  
     
 </div>   
- <script src="https://cdn.plot.ly/plotly-2.15.1.min.js"></script>
-<script>
-    var fig = JSON.parse('{{ fig | escapejs }}');
-    Plotly.newPlot('metrics-plot', fig);
-</script>
+
 
 <div id="accuracy-box-plot">
     
 </div>  
-      <script src="https://cdn.plot.ly/plotly-2.15.1.min.js"></script>
-    <script>
-        var fig_accuracy = JSON.parse('{{ combined_fig_json|escapejs }}');
 
+<script src="https://cdn.plot.ly/plotly-2.15.1.min.js"></script>
+<script>
+    var fig = JSON.parse('{{ fig | escapejs }}');
+    Plotly.newPlot('metrics-plot', fig);
+
+    var fig_accuracy = JSON.parse('{{ fig_accuracy|escapejs }}');
     Plotly.newPlot('accuracy-box-plot', fig_accuracy);
-
-        
-    </script>
-
+</script>
 </body>
 </html>
