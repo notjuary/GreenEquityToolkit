@@ -117,6 +117,19 @@
 input[type="file"] {
     color: transparent;
 }
+
+            
+    input[type="checkbox"] {
+        width: 20px; 
+        height: 20px;  
+        background-color: #eee; 
+    }
+
+    
+    input[type="checkbox"]:checked {
+        background-color: #48a363; 
+    }
+    
     </style>
     {% include 'menu.html' %}
     <meta charset="UTF-8">
@@ -128,8 +141,9 @@ input[type="file"] {
         {% csrf_token %}
         <h2>Upload ML model to evaluate energy efficiency</h2>
         <p>In this section you can evaluate the energy efficiency of your ML models by uploading the ML model file, dataset, and supported model type, respectively.</p>
-        {{ form.fileTraining.label_tag }} {{ form.fileTraining }}
-        {{ form.dataFile.label_tag }} {{ form.dataFile }}
+        {{ form.fileTraining.label_tag }}  <input type="file" id="fileTraining" name="{{ form.fileTraining.name }}">
+        {{ form.dataFile.label_tag }} <input type="file" id="dataFile" name="{{ form.dataFile.name }}">
+        {{ form.useDefaultModel.label_tag }} <input type="checkbox" id="useDefaultModel" name="{{ form.useDefaultModel.name }}"> <br>
         {{ form.countryIsoCode.label_tag }} {{ form.countryIsoCode }}
         {{ form.inferenceDevice.label_tag }} {{ form.inferenceDevice }}
         {{ form.numInferences.label_tag }} {{ form.numInferences }}
@@ -145,5 +159,16 @@ input[type="file"] {
         By uploading the required resources, CodeCarbon will allow you to have information regarding energy consumption and emission release during model runs
     </p>
 </section>
+<script>
+document.getElementById('useDefaultModel').addEventListener('change', function() {
+    var fileTrainingField = document.getElementById('fileTraining');
+    var dataFileField = document.getElementById('dataFile');
+    var isChecked = this.checked;
+
+    // Disable or enable the file upload fields based on the checkbox
+    fileTrainingField.disabled = isChecked;
+    dataFileField.disabled = isChecked;
+});
+</script>
 </body>
 </html>

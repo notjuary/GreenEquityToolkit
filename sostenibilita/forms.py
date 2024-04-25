@@ -6,7 +6,7 @@ import re
 def validate_model_file_extension(value):
     import os
     ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
-    valid_extensions = ['.tensorflow','.pytorch', '.onnx','.pkl']
+    valid_extensions = ['.tensorflow','.pytorch', '.onnx','.pkl','.h5','.keras']
     if not ext.lower() in valid_extensions:
         raise ValidationError(u'Unsupported file extension.')
 
@@ -32,11 +32,12 @@ class FileTraniningForm(forms.Form):
         ('gpu', 'GPU'),
     ]
 
-    fileTraining=forms.FileField(label="Select the ML model file to be uploaded ",validators=[validate_model_file_extension])
-    dataFile=forms.FileField(label="Selects the data file on which the model is trained ",validators=[validate_data_file_extension])
+    fileTraining=forms.FileField(required=False, label="Select the ML model file to be uploaded ",validators=[validate_model_file_extension])
+    dataFile=forms.FileField(required=False,label="Selects the data file on which the model is trained ",validators=[validate_data_file_extension])
     countryIsoCode = forms.ChoiceField(label="Select ISO Code of the country where the experiment is being run ",required=True)
     inferenceDevice=forms.ChoiceField(choices=DEVICE_CHOICES,label="Selects where to perform inference from the machine learning model ",required= True)
     numInferences=forms.IntegerField(label="Enter the inference number to be performed for the ML model ",required= True,validators=[validate_numbers_inferences])
+    useDefaultModel = forms.BooleanField(required=False, label="Use default model")
 
     def __init__(self, *args, **kwargs):
         country_choices = kwargs.pop('countries', [])
@@ -51,6 +52,20 @@ class FileTraniningForm(forms.Form):
             raise forms.ValidationError(f"Invalid country code. Choose from: {', '.join(available_codes)}")
 
         return countryIsoCode
+
+    class FileTraniningForm(forms.Form):
+        # ... (rest of your code)
+
+        def clean(self):
+            cleaned_data = super().clean()
+            use_default_model = cleaned_data.get('useDefaultModel')
+            file_training = cleaned_data.get('fileTraining')
+            data_file = cleaned_data.get('dataFile')
+
+            if not use_default_model and (not file_training or not data_file):
+                raise forms.ValidationError(
+                    "Both the model file and data file must be uploaded unless using the default model.")
+
 
 #Class for managing the form for evaluating the social sustainability of files to be uploaded
 class FileSocialForm(forms.Form):

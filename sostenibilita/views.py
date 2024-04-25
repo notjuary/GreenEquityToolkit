@@ -34,8 +34,14 @@ import numpy as np
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 import plotly.express as px
 import pandas as pd
-
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
 import json
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import precision_score, recall_score, f1_score
+
 
 output_dir = '.'
 output_file = 'emissions.csv'
@@ -440,6 +446,109 @@ def machineLearningTraining(request):
     return render(request, '404.html')
 
 
+
+def create_model():
+    # create model
+    model = Sequential()
+    model.add(Dense(12, input_dim=10, activation='relu'))  # Adjust input_dim to 10
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+
+    # Compile model
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    return model
+
+
+def loadDefaultModel(request):
+    if request.method == "POST":
+        # Load the dataset
+        data = load_diabetes()
+        # Standardize the features
+        scaler = StandardScaler()
+        X = scaler.fit_transform(data.data)
+
+        # Binarize the target
+        y = np.where(data.target > data.target.mean(), 1, 0)
+
+        # Split the data into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # create the model
+        model = create_model()
+
+        model.fit(X_train, y_train, epochs=50, batch_size=10)
+
+        _, accuracy = model.evaluate(X_test, y_test)
+        print('Accuracy: %.2f' % (accuracy * 100))
+        predictions = model.predict(X_test)
+        predictions = (predictions > 0.5).astype(int)  # Converti le probabilità in etichette di classe
+
+        # Calcola la precisione
+        precision = precision_score(y_test, predictions)
+        print(f'Precision: {precision}')
+
+        # Calcola il richiamo
+        recall = recall_score(y_test, predictions)
+        print(f'Recall: {recall}')
+
+        # Calcola il punteggio F1
+        f1 = f1_score(y_test, predictions)
+        print(f'F1 Score: {f1}')
+
+        # Calcola la media
+        mean = np.mean(predictions)
+        print(f'Mean: {mean}')
+
+        # Calcola la mediana
+        median = np.median(predictions)
+        print(f'Median: {median}')
+
+        # Calcola la varianza
+        variance = np.var(predictions)
+        print(f'Variance: {variance}')
+
+        # Calcola l'accuratezza complessiva
+        accuracy = np.mean(predictions == y_test)
+        print(f'Overall Accuracy: {accuracy}')
+
+        # Get the parameters from the form
+        country_iso_code = request.POST.get('countryIsoCode')
+        num_inferences = int(request.POST.get('numInferences'))
+        inference_device = request.POST.get('inferenceDevice')
+
+        # Start monitoring with CodeCarbon
+        tracker = OfflineEmissionsTracker(country_iso_code=country_iso_code,output_file=output_file,
+                output_dir=output_dir)
+        tracker.start()
+
+        # Set the device for the model
+        device = 'cuda' if inference_device == 'gpu' and tf.test.is_gpu_available() else 'cpu'
+
+        # Run the model for num_inferences times
+        with tf.device(device):
+            for _ in range(num_inferences):
+                predictions = model.predict(X_test)  # Replace X_test with your actual test data
+
+        # Stop monitoring
+        tracker.stop()
+
+        # Check if the file has been created
+        csv_file_path = os.path.join(output_dir, output_file)
+        if os.path.isfile(csv_file_path):
+            print(f"CSV file created: {csv_file_path}")
+
+            with open(csv_file_path, 'r') as csvfile:
+                csv_reader = csv.DictReader(csvfile, delimiter=',')
+                for row in csv_reader:
+                    print(row)
+
+        else:
+            print(f"CSV file not found: {csv_file_path}")
+
+        return render(request, 'cardModels.html')
+
+    return render(request, '404.html')
+
 # Function for processing the trainingFile.html form for tracking with CodeCarbon the models uploaded by the user
 def uploadFile(request):
     countries = request.session.get('countries', None)
@@ -448,8 +557,7 @@ def uploadFile(request):
     if request.method == 'POST':
         form = FileTraniningForm(request.POST, request.FILES, countries=countries)
         if form.is_valid():
-            file = form.cleaned_data['fileTraining']
-            dataFile = form.cleaned_data['dataFile']
+            use_default_model = form.cleaned_data['useDefaultModel']
             countryIsoCode = form.cleaned_data['countryIsoCode']
             numInferences = form.cleaned_data['numInferences']
             inferenceDevice = form.cleaned_data['inferenceDevice']
@@ -464,167 +572,175 @@ def uploadFile(request):
                 }
                 return render(request, '404.html', context)
 
-            # Verify data format
-            if not dataFile.name.endswith(('.csv', '.xlsx', '.xls', '.json', '.yaml')):
-                errore = "Data file type not supported"
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
 
-            # Save the file temporarily
-            _, temp_file_path = tempfile.mkstemp()
-            with open(temp_file_path, 'wb+') as temp_file:
-                for chunk in file.chunks():
-                    temp_file.write(chunk)
+            if use_default_model:
+                loadDefaultModel(request)
+            else:
+                file = form.cleaned_data['fileTraining']
+                dataFile = form.cleaned_data['dataFile']
 
-            # Upload the template
-            try:
-                model = joblib.load(temp_file_path)  # Load the model with joblib
-                modelType = None
 
-                # Determine the library of the model
-                if isinstance(model, sklearn.base.BaseEstimator):
-                    modelType = 'sklearn'
-                elif isinstance(model, tensorflow.python.keras.engine.training.Model):
-                    modelType = 'tensorflow'
-                elif isinstance(model, torch.nn.modules.module.Module):
-                    modelType = 'pytorch'
-                elif isinstance(model, onnx.onnx_ml_pb2.ModelProto):
-                    modelType = 'onnx'
-
-                else:
-                    raise ValueError("Model type not supported")
-
-                print(f"The model was loaded correctly. Model type: {modelType}")
-            except Exception as e:
-                errore = f"Error while loading the model: {str(e)}"
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
-
-            # Read data from the file
-            try:
-                if dataFile.name.endswith('.csv'):
-                    data = pd.read_csv(io.StringIO(dataFile.read().decode('utf-8')))
-                elif dataFile.name.endswith('.xlsx') or dataFile.name.endswith('.xls'):
-                    data = pd.read_excel(io.BytesIO(dataFile.read()))
-                elif dataFile.name.endswith('.json'):
-                    data = pd.read_json(io.StringIO(dataFile.read().decode('utf-8')))
-                elif dataFile.name.endswith('.yaml'):
-                    data = pd.json_normalize(yaml.safe_load(io.StringIO(dataFile.read().decode('utf-8'))))
-                else:
-                    raise ValueError("Data file type not supported")
-                print("The data file was read correctly.")
-            except Exception as e:
-                errore = "Error while reading the data file: " + str(e)
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
-
-                # Start monitoring with CodeCarbon
-            tracker = OfflineEmissionsTracker(
-                country_iso_code=countryIsoCode,
-                output_file=output_file,
-                output_dir=output_dir
-            )
-
-            tracker.start()
-
-            # Set the device for the model
-            device = 'cuda' if inferenceDevice == 'gpu' and torch.cuda.is_available() else 'cpu'
-
-            # Run the model for numInferences times
-            for _ in range(numInferences):
-                try:
-                    if modelType == 'sklearn' and isinstance(model, sklearn.base.BaseEstimator):
-                        predictions = model.predict(data)
-                    elif modelType == 'tensorflow' and isinstance(model, tensorflow.python.keras.engine.training.Model):
-                        with tf.device(device):
-                            predictions = model.predict(data)
-                    elif modelType == 'pytorch' and isinstance(model, torch.nn.modules.module.Module):
-                        data_tensor = torch.from_numpy(data.values.astype('float32')).to(device)
-                        model = model.to(device)
-                        predictions = model(data_tensor)
-                    elif modelType == 'onnx':
-                        input_name = sess.get_inputs()[0].name
-                        predictions = sess.run(None, {input_name: data.values.astype('float32')})
-                    else:
-                        raise ValueError("Model type not supported")
-                except Exception as e:
-                    errore = "Error during model execution: " + str(e)
+                # Verify data format
+                if not dataFile.name.endswith(('.csv', '.xlsx', '.xls', '.json', '.yaml')):
+                    errore = "Data file type not supported"
                     messages.error(request, errore)
                     print(errore)
-                    tracker.stop()
                     context = {
                         'errore': errore,
                     }
                     return render(request, '404.html', context)
-                finally:
-                    tracker.stop()
 
-            dataResults = []
-            # Check if the file has been created
-            csv_file_path = os.path.join(output_dir, output_file)
-            if os.path.isfile(csv_file_path):
-                print(f"CSV file created: {csv_file_path}")
+                # Save the file temporarily
+                _, temp_file_path = tempfile.mkstemp()
+                with open(temp_file_path, 'wb+') as temp_file:
+                    for chunk in file.chunks():
+                        temp_file.write(chunk)
 
-                with open(csv_file_path, 'r') as csvfile:
-                    csv_reader = csv.DictReader(csvfile, delimiter=',')
-                    for row in csv_reader:
-                        print(row)
+                # Upload the template
+                try:
+                    model = joblib.load(temp_file_path)  # Load the model with joblib
+                    modelType = None
 
-                        # Convert kWh to Joules
-                        energy_in_joules = float(
-                            row['energy_consumed']) * 3600000  # Conversion factor (1 kWh = 3600000 J)
-                        ram_energy_in_joules = float(row['ram_energy']) * 3600000
-                        cpu_energy_in_joules = float(row['cpu_energy']) * 3600000
-                        gpu_energy_in_joules = float(row['gpu_energy']) * 3600000
+                    # Determine the library of the model
+                    if isinstance(model, sklearn.base.BaseEstimator):
+                        modelType = 'sklearn'
+                    elif isinstance(model, tensorflow.python.keras.engine.training.Model):
+                        modelType = 'tensorflow'
+                    elif isinstance(model, torch.nn.modules.module.Module):
+                        modelType = 'pytorch'
+                    elif isinstance(model, onnx.onnx_ml_pb2.ModelProto):
+                        modelType = 'onnx'
 
-                        dataResults.append({
-                            'timestamp': row['timestamp'],
-                            'run_id': row['run_id'],
-                            'energy_consumed': energy_in_joules,
-                            'duration': row['duration'],
-                            'ram_energy': ram_energy_in_joules,
-                            'cpu_energy': cpu_energy_in_joules,
-                            'gpu_energy': gpu_energy_in_joules
-                        })
-            else:
-                print(f"CSV file not found: {csv_file_path}")
+                    else:
+                        raise ValueError("Model type not supported")
 
-            energy_consumption_data = [row['energy_consumed'] for row in dataResults]
-            fig = px.violin(energy_consumption_data, title="Energy Consumption Distribution")
+                    print(f"The model was loaded correctly. Model type: {modelType}")
+                except Exception as e:
+                    errore = f"Error while loading the model: {str(e)}"
+                    messages.error(request, errore)
+                    print(errore)
+                    context = {
+                        'errore': errore,
+                    }
+                    return render(request, '404.html', context)
 
-            combined_energy_data = []
-            for row in dataResults:
-                combined_energy_data.append([row['ram_energy'], row['cpu_energy'], row['gpu_energy']])
+                # Read data from the file
+                try:
+                    if dataFile.name.endswith('.csv'):
+                        data = pd.read_csv(io.StringIO(dataFile.read().decode('utf-8')))
+                    elif dataFile.name.endswith('.xlsx') or dataFile.name.endswith('.xls'):
+                        data = pd.read_excel(io.BytesIO(dataFile.read()))
+                    elif dataFile.name.endswith('.json'):
+                        data = pd.read_json(io.StringIO(dataFile.read().decode('utf-8')))
+                    elif dataFile.name.endswith('.yaml'):
+                        data = pd.json_normalize(yaml.safe_load(io.StringIO(dataFile.read().decode('utf-8'))))
+                    else:
+                        raise ValueError("Data file type not supported")
+                    print("The data file was read correctly.")
+                except Exception as e:
+                    errore = "Error while reading the data file: " + str(e)
+                    messages.error(request, errore)
+                    print(errore)
+                    context = {
+                        'errore': errore,
+                    }
+                    return render(request, '404.html', context)
 
-            df_combined = pd.DataFrame(combined_energy_data, columns=["RAM", "CPU", "GPU"])
+                    # Start monitoring with CodeCarbon
+                tracker = OfflineEmissionsTracker(
+                    country_iso_code=countryIsoCode,
+                    output_file=output_file,
+                    output_dir=output_dir
+                )
 
-            figEnergy = px.violin(df_combined.melt(var_name='Type', value_name='Energy'), y="Energy", x="Type",
-                                  box=True, title="Energy Consumption Distribution (RAM,CPU,GPU)")
+                tracker.start()
 
-            # Optional customizations for the plot
-            fig.update_layout(
-                xaxis_title="Energy Consumed (Joules)",
-                yaxis_title="Count",
-                violingroupgap=0
-            )
+                # Set the device for the model
+                device = 'cuda' if inferenceDevice == 'gpu' and torch.cuda.is_available() else 'cpu'
 
-            messages.success(request, "Processing successfully completed!")
-            return render(request, 'results.html',
-                          {'data': dataResults, 'fig': fig.to_json(), 'combined_fig_json': figEnergy.to_json()})
+                # Run the model for numInferences times
+                for _ in range(numInferences):
+                    try:
+                        if modelType == 'sklearn' and isinstance(model, sklearn.base.BaseEstimator):
+                            predictions = model.predict(data)
+                        elif modelType == 'tensorflow' and isinstance(model, tensorflow.python.keras.engine.training.Model):
+                            with tf.device(device):
+                                predictions = model.predict(data)
+                        elif modelType == 'pytorch' and isinstance(model, torch.nn.modules.module.Module):
+                            data_tensor = torch.from_numpy(data.values.astype('float32')).to(device)
+                            model = model.to(device)
+                            predictions = model(data_tensor)
+                        elif modelType == 'onnx':
+                            input_name = sess.get_inputs()[0].name
+                            predictions = sess.run(None, {input_name: data.values.astype('float32')})
+                        else:
+                            raise ValueError("Model type not supported")
+                    except Exception as e:
+                        errore = "Error during model execution: " + str(e)
+                        messages.error(request, errore)
+                        print(errore)
+                        tracker.stop()
+                        context = {
+                            'errore': errore,
+                        }
+                        return render(request, '404.html', context)
+                    finally:
+                        tracker.stop()
 
-            os.remove(temp_file_path)  # Remove the temporary file
+                dataResults = []
+                # Check if the file has been created
+                csv_file_path = os.path.join(output_dir, output_file)
+                if os.path.isfile(csv_file_path):
+                    print(f"CSV file created: {csv_file_path}")
+
+                    with open(csv_file_path, 'r') as csvfile:
+                        csv_reader = csv.DictReader(csvfile, delimiter=',')
+                        for row in csv_reader:
+                            print(row)
+
+                            # Convert kWh to Joules
+                            energy_in_joules = float(
+                                row['energy_consumed']) * 3600000  # Conversion factor (1 kWh = 3600000 J)
+                            ram_energy_in_joules = float(row['ram_energy']) * 3600000
+                            cpu_energy_in_joules = float(row['cpu_energy']) * 3600000
+                            gpu_energy_in_joules = float(row['gpu_energy']) * 3600000
+
+                            dataResults.append({
+                                'timestamp': row['timestamp'],
+                                'run_id': row['run_id'],
+                                'energy_consumed': energy_in_joules,
+                                'duration': row['duration'],
+                                'ram_energy': ram_energy_in_joules,
+                                'cpu_energy': cpu_energy_in_joules,
+                                'gpu_energy': gpu_energy_in_joules
+                            })
+                else:
+                    print(f"CSV file not found: {csv_file_path}")
+
+                energy_consumption_data = [row['energy_consumed'] for row in dataResults]
+                fig = px.violin(energy_consumption_data, title="Energy Consumption Distribution")
+
+                combined_energy_data = []
+                for row in dataResults:
+                    combined_energy_data.append([row['ram_energy'], row['cpu_energy'], row['gpu_energy']])
+
+                df_combined = pd.DataFrame(combined_energy_data, columns=["RAM", "CPU", "GPU"])
+
+                figEnergy = px.violin(df_combined.melt(var_name='Type', value_name='Energy'), y="Energy", x="Type",
+                                      box=True, title="Energy Consumption Distribution (RAM,CPU,GPU)")
+
+                # Optional customizations for the plot
+                fig.update_layout(
+                    xaxis_title="Energy Consumed (Joules)",
+                    yaxis_title="Count",
+                    violingroupgap=0
+                )
+
+                messages.success(request, "Processing successfully completed!")
+                return render(request, 'results.html',
+                              {'data': dataResults, 'fig': fig.to_json(), 'combined_fig_json': figEnergy.to_json()})
+
+                os.remove(temp_file_path)  # Remove the temporary file
 
         else:
             print(form.errors)
