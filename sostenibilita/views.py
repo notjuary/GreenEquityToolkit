@@ -15,7 +15,6 @@ from codecarbon import OfflineEmissionsTracker
 from sklearn.metrics._classification import precision_score, recall_score, f1_score
 from tensorboard.compat import tf
 from torch import device
-
 from sostenibilita.forms import FileTraniningForm, ModelTrainedForm, FileSocialForm, \
     UploadDatasetForm, SelectProtectedAttributesForm
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trainer, TrainingArguments, \
@@ -42,10 +41,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import precision_score, recall_score, f1_score
 
+from sostenibilita.modelManager import ModelManager
 
 output_dir = '.'
 output_file = 'emissions.csv'
-
+#Class to manage added models, getting model cards with results to manage
+model_manager = ModelManager()
 
 # Homepage loading function
 def index(request):
@@ -446,7 +447,7 @@ def machineLearningTraining(request):
     return render(request, '404.html')
 
 
-
+#Wrapper function for creating the default template
 def create_model():
     # create model
     model = Sequential()
@@ -463,6 +464,14 @@ def loadDefaultModel(request):
     if request.method == "POST":
         # Load the dataset
         data = load_diabetes()
+
+        df = pd.DataFrame(data.data, columns=data.feature_names)
+
+        df['target'] = data.target
+
+        # Salva il DataFrame in un file CSV
+        df.to_csv('diabetes_dataset.csv', index=False)
+
         # Standardize the features
         scaler = StandardScaler()
         X = scaler.fit_transform(data.data)
@@ -483,33 +492,72 @@ def loadDefaultModel(request):
         predictions = model.predict(X_test)
         predictions = (predictions > 0.5).astype(int)  # Converti le probabilità in etichette di classe
 
-        # Calcola la precisione
+        # Calculate accuracy
         precision = precision_score(y_test, predictions)
         print(f'Precision: {precision}')
 
-        # Calcola il richiamo
+        # Calculate the recall
         recall = recall_score(y_test, predictions)
         print(f'Recall: {recall}')
 
-        # Calcola il punteggio F1
+        # Calculate the F1 score
         f1 = f1_score(y_test, predictions)
         print(f'F1 Score: {f1}')
 
-        # Calcola la media
+        # Calculate the average
         mean = np.mean(predictions)
         print(f'Mean: {mean}')
 
-        # Calcola la mediana
+        # Calculate the median
         median = np.median(predictions)
         print(f'Median: {median}')
 
-        # Calcola la varianza
+        # Calculate the variance
         variance = np.var(predictions)
         print(f'Variance: {variance}')
 
-        # Calcola l'accuratezza complessiva
+        # Calculates overall accuracy
         accuracy = np.mean(predictions == y_test)
         print(f'Overall Accuracy: {accuracy}')
+
+        from aif360.datasets import BinaryLabelDataset
+        from aif360.metrics import ClassificationMetric
+
+        # Crea un DataFrame con i tuoi dati e le etichette
+        df = pd.DataFrame(X_test, columns=data.feature_names)
+        df['label'] = y_test
+
+        # Calcola la mediana di 'sex' e 'age'
+        sex_median = df['sex'].median()
+        age_median = df['age'].median()
+
+        # Crea nuove variabili binarie
+        df['sex_above_median'] = np.where(df['sex'] > sex_median, 1, 0)
+        df['age_above_median'] = np.where(df['age'] > age_median, 1, 0)
+
+        # Converti il DataFrame in un BinaryLabelDataset
+        dataset = BinaryLabelDataset(df=df, label_names=['label'], protected_attribute_names=['sex_above_median', 'age_above_median'])
+
+        # Crea un altro BinaryLabelDataset per le tue previsioni
+        dataset_pred = dataset.copy()
+        dataset_pred.labels = model.predict(X_test).reshape(-1, 1)
+
+        # Definisci i tuoi gruppi privilegiati e non privilegiati
+        privileged_groups = [{'sex_above_median': 1,'age_above_median':1}]
+        unprivileged_groups = [{'sex_above_median': 0,'age_above_median':0}]
+
+        # Calcola le metriche
+        metric = ClassificationMetric(dataset, dataset_pred, unprivileged_groups=unprivileged_groups,
+                                      privileged_groups=privileged_groups)
+
+        # Ora puoi accedere alle metriche di equità
+        mean_difference = metric.mean_difference()
+        equal_opportunity_difference = metric.equal_opportunity_difference()
+        average_odds_difference = metric.average_odds_difference()
+
+        print('Mean Difference:', mean_difference)
+        print('Equal Opportunity Difference:', equal_opportunity_difference)
+        print('Average Odds Difference:', average_odds_difference)
 
         # Get the parameters from the form
         country_iso_code = request.POST.get('countryIsoCode')
@@ -545,9 +593,79 @@ def loadDefaultModel(request):
         else:
             print(f"CSV file not found: {csv_file_path}")
 
-        return render(request, 'cardModels.html')
+        dataResults = []
+        # Check if the file has been created
+        csv_file_path = os.path.join(output_dir, output_file)
+        if os.path.isfile(csv_file_path):
+            print(f"CSV file created: {csv_file_path}")
 
-    return render(request, '404.html')
+            with open(csv_file_path, 'r') as csvfile:
+                csv_reader = csv.DictReader(csvfile, delimiter=',')
+                for row in csv_reader:
+                    print(row)
+
+                    # Convert kWh to Joules
+                    energy_in_joules = float(
+                        row['energy_consumed']) * 3600000  # Conversion factor (1 kWh = 3600000 J)
+                    ram_energy_in_joules = float(row['ram_energy']) * 3600000
+                    cpu_energy_in_joules = float(row['cpu_energy']) * 3600000
+                    gpu_energy_in_joules = float(row['gpu_energy']) * 3600000
+
+                    dataResults.append({
+                        'timestamp': row['timestamp'],
+                        'run_id': row['run_id'],
+                        'energy_consumed': energy_in_joules,
+                        'duration': row['duration'],
+                        'ram_energy': ram_energy_in_joules,
+                        'cpu_energy': cpu_energy_in_joules,
+                        'gpu_energy': gpu_energy_in_joules
+                    })
+        else:
+            print(f"CSV file not found: {csv_file_path}")
+
+        energy_consumption_data = [row['energy_consumed'] for row in dataResults]
+        fig = px.violin(energy_consumption_data, title="Energy Consumption Distribution")
+
+        combined_energy_data = []
+        for row in dataResults:
+            combined_energy_data.append([row['ram_energy'], row['cpu_energy'], row['gpu_energy']])
+
+        df_combined = pd.DataFrame(combined_energy_data, columns=["RAM", "CPU", "GPU"])
+
+        figEnergy = px.violin(df_combined.melt(var_name='Type', value_name='Energy'), y="Energy", x="Type",
+                              box=True, title="Energy Consumption Distribution (RAM,CPU,GPU)")
+
+        # Optional customizations for the plot
+        fig.update_layout(
+            xaxis_title="Energy Consumed (Joules)",
+            yaxis_title="Count",
+            violingroupgap=0
+        )
+
+        energy_consumption_graph=fig.to_json()
+        combined_energy_graph=figEnergy.to_json()
+
+        model_manager.addModel(
+            name='base_model',
+            precision_base=precision,
+            recall_base=recall,
+            f1_score_base=f1,
+            mean_base=mean,
+            median_base=median,
+            variance_base=variance,
+            overall_accuracy_base=accuracy ,
+            energy_consumption_graph=energy_consumption_graph,
+            combined_energy_graph=combined_energy_graph
+        )
+
+        print(model_manager.__str__())
+        print(model_manager.models)
+        for key, value in model_manager.models.items():
+            print(key)
+            print(value)
+        return render(request, 'cardModels.html',{'manager_models':model_manager.models})
+
+    return HttpResponse(request, '404.html')
 
 # Function for processing the trainingFile.html form for tracking with CodeCarbon the models uploaded by the user
 def uploadFile(request):
@@ -574,7 +692,7 @@ def uploadFile(request):
 
 
             if use_default_model:
-                loadDefaultModel(request)
+                return loadDefaultModel(request)
             else:
                 file = form.cleaned_data['fileTraining']
                 dataFile = form.cleaned_data['dataFile']
