@@ -117,15 +117,39 @@
 
                             Plotly.newPlot('energy-chart-{{ forloop.counter }}', fig);
                         </script>
+                        
                          <div class="graph-container">
                             <div id="combined-energy-chart-{{ forloop.counter }}" class="graph"></div>
                         </div>
-                        
                         <script>
                             var figEnergyCombined = JSON.parse('{{ model_data.combined_energy_graph|escapejs }}');
 
                             Plotly.newPlot('combined-energy-chart-{{ forloop.counter }}', figEnergyCombined);
                         </script>
+                        
+                        
+                        <div class="graph-container">
+                            <div id="accuracy_graph-{{ forloop.counter }}" class="graph"></div>
+                        </div>
+                        
+                        <script>
+                            var figAccuracy = JSON.parse('{{ model_data.accuracy_graph|escapejs }}');
+
+                            Plotly.newPlot('accuracy_graph-{{ forloop.counter }}', figAccuracy);
+                        </script>
+                        
+                          <div class="graph-container">
+                            <div id="metrics_graph-{{ forloop.counter }}" class="graph"></div>
+                        </div>
+                        
+                        <script>
+                            var figAccuracy = JSON.parse('{{ model_data.metrics_graph|escapejs }}');
+
+                            Plotly.newPlot('metrics_graph-{{ forloop.counter }}', figAccuracy);
+                        </script>
+                        
+                        
+                        
                     </div>
                 </div>
             {% endfor %}

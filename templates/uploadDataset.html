@@ -126,6 +126,18 @@ input[type="file"] {
     color: transparent;
 }
 
+  input[type="checkbox"] {
+        width: 20px; 
+        height: 20px;  
+        background-color: #eee; 
+    }
+
+    
+    input[type="checkbox"]:checked {
+        background-color: #48a363; 
+    }
+    
+
     </style>
     {% include 'menu.html' %}
     <meta charset="UTF-8">
@@ -135,12 +147,24 @@ input[type="file"] {
         {% csrf_token %}
         <h2>Load the dataset of your machine learning model</h2>
         <p>In this section you can evaluate the social sustainability of your ML models by uploading the ML model file and dataset, going to define the attribute set that may be protected .</p>
-        {{ form.datasetFile.label_tag }} {{ form.datasetFile }}
+        {{ form.datasetFile.label_tag }} <input type="file" id="datasetFile" name="{{ form.datasetFile.name }}">
+        {{ form.useDefaultModel.label_tag }} <input type="checkbox" id="useDefaultModel" name="{{ form.useDefaultModel.name }}"> <br>    
         <input type="submit" value="Upload"> 
         </section>
     </form>    
 </head>
 <body>
+<script>
+document.getElementById('useDefaultModel').addEventListener('change', function() {
+    
+    var datasetFileField = document.getElementById('datasetFile');
+    var isChecked = this.checked;
+
+    // Disable or enable the file upload fields based on the checkbox
+    datasetFileField.disabled = isChecked;
+    dataFileField.disabled = isChecked;
+});
+</script>
 
 </body>
 </html>

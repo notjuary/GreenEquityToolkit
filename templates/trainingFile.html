@@ -143,7 +143,12 @@ input[type="file"] {
         <p>In this section you can evaluate the energy efficiency of your ML models by uploading the ML model file, dataset, and supported model type, respectively.</p>
         {{ form.fileTraining.label_tag }}  <input type="file" id="fileTraining" name="{{ form.fileTraining.name }}">
         {{ form.dataFile.label_tag }} <input type="file" id="dataFile" name="{{ form.dataFile.name }}">
-        {{ form.useDefaultModel.label_tag }} <input type="checkbox" id="useDefaultModel" name="{{ form.useDefaultModel.name }}"> <br>
+        {% if request.session.useDefaultModel %}
+            {{ form.useDefaultModel.label_tag }} <input type="checkbox" id="useDefaultModel" name="{{ form.useDefaultModel.name }}" checked> <br>
+        {% else %}
+            {{ form.useDefaultModel.label_tag }} <input type="checkbox" id="useDefaultModel" name="{{ form.useDefaultModel.name }}">
+        {% endif %}
+    
         {{ form.countryIsoCode.label_tag }} {{ form.countryIsoCode }}
         {{ form.inferenceDevice.label_tag }} {{ form.inferenceDevice }}
         {{ form.numInferences.label_tag }} {{ form.numInferences }}
@@ -160,6 +165,16 @@ input[type="file"] {
     </p>
 </section>
 <script>
+window.onload = function() {
+    var useDefaultModelCheckbox = document.getElementById('useDefaultModel');
+    var fileTrainingField = document.getElementById('fileTraining');
+    var dataFileField = document.getElementById('dataFile');
+
+    // Disable or enable the file upload fields based on the checkbox
+    fileTrainingField.disabled = useDefaultModelCheckbox.checked;
+    dataFileField.disabled = useDefaultModelCheckbox.checked;
+};    
+    
 document.getElementById('useDefaultModel').addEventListener('change', function() {
     var fileTrainingField = document.getElementById('fileTraining');
     var dataFileField = document.getElementById('dataFile');

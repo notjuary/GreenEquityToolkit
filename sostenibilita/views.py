@@ -40,11 +40,12 @@ from sklearn.datasets import load_diabetes
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import precision_score, recall_score, f1_score
-
+import uuid
 from sostenibilita.modelManager import ModelManager
 
 output_dir = '.'
 output_file = 'emissions.csv'
+
 #Class to manage added models, getting model cards with results to manage
 model_manager = ModelManager()
 
@@ -115,81 +116,90 @@ def uploadDataset(request):
     if request.method == 'POST':
         form = UploadDatasetForm(request.POST, request.FILES)
         if form.is_valid():
-            # Save dataset in session and columns
-            dataFile = form.cleaned_data['datasetFile']
+            use_default_model = form.cleaned_data['useDefaultModel']
+            request.session['useDefaultModel'] = use_default_model
+            print(use_default_model)
+            if use_default_model:
+                return trainingFile(request)
+            else:
+                # Save dataset in session and columns
+                dataFile = form.cleaned_data['datasetFile']
 
-            # Verify data format
-            if not dataFile.name.endswith(('.csv', '.xlsx', '.xls', '.json', '.yaml')):
-                errore = "Data file type not supported"
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
+                # Verify data format
+                if not dataFile.name.endswith(('.csv', '.xlsx', '.xls', '.json', '.yaml')):
+                    errore = "Data file type not supported"
+                    messages.error(request, errore)
+                    print(errore)
+                    context = {
+                        'errore': errore,
+                    }
+                    return render(request, '404.html', context)
 
-                # Read data from the dataset
-            try:
-                if dataFile.name.endswith('.csv'):
-                    data = pd.read_csv(io.StringIO(dataFile.read().decode('utf-8')))
-                    # Setting dataset columns in checkboxes to define which protected attributes to consider
-                    columns = list(data.columns)
-                    print(columns)
-                    request.session['columns'] = columns
-                    uploadForm = FileSocialForm()
-                    select_form = SelectProtectedAttributesForm(columns=columns)
-                    return render(request, 'socialUpdateFile.html',
-                                  {'uploadForm': uploadForm, 'selectForm': select_form})
+                    # Read data from the dataset
+                try:
+                    if dataFile.name.endswith('.csv'):
+                        data = pd.read_csv(io.StringIO(dataFile.read().decode('utf-8')))
+                        # Setting dataset columns in checkboxes to define which protected attributes to consider
+                        columns = list(data.columns)
+                        print(columns)
+                        request.session['columns'] = columns
+                        uploadForm = FileSocialForm()
+                        select_form = SelectProtectedAttributesForm(columns=columns)
+                        return render(request, 'socialUpdateFile.html',
+                                      {'uploadForm': uploadForm, 'selectForm': select_form})
 
 
-                elif dataFile.name.endswith('.xlsx') or dataFile.name.endswith('.xls'):
-                    data = pd.read_excel(io.BytesIO(dataFile.read()))
-                    # Setting dataset columns in checkboxes to define which protected attributes to consider
-                    columns = list(data.columns)
-                    print(columns)
-                    request.session['columns'] = columns
-                    uploadForm = FileSocialForm()
+                    elif dataFile.name.endswith('.xlsx') or dataFile.name.endswith('.xls'):
+                        data = pd.read_excel(io.BytesIO(dataFile.read()))
+                        # Setting dataset columns in checkboxes to define which protected attributes to consider
+                        columns = list(data.columns)
+                        print(columns)
+                        request.session['columns'] = columns
+                        uploadForm = FileSocialForm()
 
-                    select_form = SelectProtectedAttributesForm(columns=columns)
-                    return render(request, 'socialUpdateFile.html',
-                                  {'uploadForm': uploadForm, 'selectForm': select_form})
+                        select_form = SelectProtectedAttributesForm(columns=columns)
+                        return render(request, 'socialUpdateFile.html',
+                                      {'uploadForm': uploadForm, 'selectForm': select_form})
 
-                elif dataFile.name.endswith('.json'):
-                    data = pd.read_json(io.StringIO(dataFile.read().decode('utf-8')))
-                    # Setting dataset columns in checkboxes to define which protected attributes to consider
-                    columns = list(data.columns)
-                    print(columns)
-                    uploadForm = FileSocialForm()
-                    request.session['columns'] = columns
-                    select_form = SelectProtectedAttributesForm(columns=columns)
-                    return render(request, 'socialUpdateFile.html',
-                                  {'uploadForm': uploadForm, 'selectForm': select_form})
+                    elif dataFile.name.endswith('.json'):
+                        data = pd.read_json(io.StringIO(dataFile.read().decode('utf-8')))
+                        # Setting dataset columns in checkboxes to define which protected attributes to consider
+                        columns = list(data.columns)
+                        print(columns)
+                        uploadForm = FileSocialForm()
+                        request.session['columns'] = columns
+                        select_form = SelectProtectedAttributesForm(columns=columns)
+                        return render(request, 'socialUpdateFile.html',
+                                      {'uploadForm': uploadForm, 'selectForm': select_form})
 
-                elif dataFile.name.endswith('.yaml'):
-                    data = pd.json_normalize(yaml.safe_load(io.StringIO(dataFile.read().decode('utf-8'))))
-                    # Setting dataset columns in checkboxes to define which protected attributes to consider
-                    columns = list(data.columns)
-                    print(columns)
-                    request.session['columns'] = columns
-                    uploadForm = FileSocialForm()
-                    select_form = SelectProtectedAttributesForm(columns=columns)
-                    return render(request, 'socialUpdateFile.html',
-                                  {'uploadForm': uploadForm, 'selectForm': select_form})
+                    elif dataFile.name.endswith('.yaml'):
+                        data = pd.json_normalize(yaml.safe_load(io.StringIO(dataFile.read().decode('utf-8'))))
+                        # Setting dataset columns in checkboxes to define which protected attributes to consider
+                        columns = list(data.columns)
+                        print(columns)
+                        request.session['columns'] = columns
+                        uploadForm = FileSocialForm()
+                        select_form = SelectProtectedAttributesForm(columns=columns)
+                        return render(request, 'socialUpdateFile.html',
+                                      {'uploadForm': uploadForm, 'selectForm': select_form})
 
-                else:
-                    raise ValueError("Data file type not supported")
+                    else:
+                        raise ValueError("Data file type not supported")
 
-                print("The data file was read correctly.")
-            except Exception as e:
-                errore = "Error while reading the data file: " + str(e)
-                messages.error(request, errore)
-                print(errore)
-                context = {
-                    'errore': errore,
-                }
-                return render(request, '404.html', context)
-    else:
-        return render(request, '404.html')
+                    print("The data file was read correctly.")
+                except Exception as e:
+                    errore = "Error while reading the data file: " + str(e)
+                    messages.error(request, errore)
+                    print(errore)
+                    context = {
+                        'errore': errore,
+                    }
+                    return render(request, '404.html', context)
+        else:
+            print(form.errors)
+            return render(request,'404.html',{'errore':str(form.errors)})
+
+    return render(request, '404.html')
 
 
 # Redirection function for loading model and dataset files
@@ -223,9 +233,9 @@ def trainingFile(request):
 
     # Save the list of countries in the session.
     request.session['countries'] = countries
-
+    print(f"Value of session: "+str(request.session.get('useDefaultModel')))
     # Create an instance of form.
-    form = FileTraniningForm(countries=countries)
+    form = FileTraniningForm(countries=countries, initial={'useDefaultModel': request.session.get('useDefaultModel', False)})
     # Create an instance of form.
     return render(request, 'trainingFile.html', {'form': form})
 
@@ -444,6 +454,7 @@ def machineLearningTraining(request):
         else:
             print(form.errors)
 
+
     return render(request, '404.html')
 
 
@@ -517,11 +528,9 @@ def loadDefaultModel(request):
         print(f'Variance: {variance}')
 
         # Calculates overall accuracy
-        accuracy = np.mean(predictions == y_test)
-        print(f'Overall Accuracy: {accuracy}')
+        overall_accuracy = np.mean(predictions == y_test)
+        print(f'Overall Accuracy: {overall_accuracy}')
 
-        from aif360.datasets import BinaryLabelDataset
-        from aif360.metrics import ClassificationMetric
 
         # Crea un DataFrame con i tuoi dati e le etichette
         df = pd.DataFrame(X_test, columns=data.feature_names)
@@ -642,8 +651,37 @@ def loadDefaultModel(request):
             violingroupgap=0
         )
 
+        # Creating a DataFrame with your metrics.
+        df_metrics = pd.DataFrame({
+            'Mean difference': [mean_difference],
+            'Equal opportunity difference': [equal_opportunity_difference],
+            'Average odds difference': [average_odds_difference],
+            'Mean of mean differences': [mean],
+            'Median of mean differences': [median],
+            'Variance of mean differences': [variance],
+            'Overall 0,1': [overall_accuracy]
+        })
+
+        df_metrics = df_metrics.melt(var_name='Metric', value_name='Value')
+        # Create the box plot with Plotly
+        fig_metrics = px.box(df_metrics, x='Metric', y='Value')
+
+
+        df_metrics_accuracy = pd.DataFrame({
+            'Accuracy': [accuracy],
+            'Precision': [precision],
+            'Recall': [recall],
+            'F1-score': [f1]
+        })
+
+        df_metrics_accuracy = df_metrics_accuracy.melt(var_name='Metric', value_name='Value')
+        fig_accuracy = px.box(df_metrics_accuracy, x='Metric', y='Value')
+
+
         energy_consumption_graph=fig.to_json()
         combined_energy_graph=figEnergy.to_json()
+        metrics_graph=fig_metrics.to_json()
+        accuracy_graph=fig_accuracy.to_json()
 
         model_manager.addModel(
             name='base_model',
@@ -655,17 +693,14 @@ def loadDefaultModel(request):
             variance_base=variance,
             overall_accuracy_base=accuracy ,
             energy_consumption_graph=energy_consumption_graph,
-            combined_energy_graph=combined_energy_graph
+            combined_energy_graph=combined_energy_graph,
+            metrics_graph=metrics_graph,
+            accuracy_graph=accuracy_graph,
         )
 
-        print(model_manager.__str__())
-        print(model_manager.models)
-        for key, value in model_manager.models.items():
-            print(key)
-            print(value)
         return render(request, 'cardModels.html',{'manager_models':model_manager.models})
 
-    return HttpResponse(request, '404.html')
+    return HttpResponse(request, '404.html',{'errore':'Error loading the default model template'})
 
 # Function for processing the trainingFile.html form for tracking with CodeCarbon the models uploaded by the user
 def uploadFile(request):
@@ -854,11 +889,29 @@ def uploadFile(request):
                     violingroupgap=0
                 )
 
+                energy_consumption_graph = fig.to_json()
+                combined_energy_graph = figEnergy.to_json()
+
                 messages.success(request, "Processing successfully completed!")
-                return render(request, 'results.html',
-                              {'data': dataResults, 'fig': fig.to_json(), 'combined_fig_json': figEnergy.to_json()})
+                unique_id = uuid.uuid4()
+
+                model_manager.addModel(
+                    name=unique_id,
+                    precision_base=None,
+                    recall_base=None,
+                    f1_score_base=None,
+                    mean_base=None,
+                    median_base=None,
+                    variance_base=None,
+                    overall_accuracy_base=None,
+                    energy_consumption_graph=energy_consumption_graph,
+                    combined_energy_graph=combined_energy_graph,
+                    metrics_graph=None,
+                    accuracy_graph=None,
+                )
 
                 os.remove(temp_file_path)  # Remove the temporary file
+                return render(request, 'cardModels.html', {'manager_models': model_manager.models})
 
         else:
             print(form.errors)
@@ -1115,7 +1168,7 @@ def uploadFileSocial(request):
                 print("Overall 0,1:\n", overall_01)
 
                 # Creating a DataFrame with your metrics.
-                df_metrics = ({
+                df_metrics = pd.DataFrame({
                     'Mean difference': [mean_difference],
                     'Equal opportunity difference': [equal_opportunity_difference],
                     'Average odds difference': [average_odds_difference],
@@ -1139,8 +1192,28 @@ def uploadFileSocial(request):
                 df_metrics_accuracy = df_metrics_accuracy.melt(var_name='Metric', value_name='Value')
                 fig_accuracy = px.box(df_metrics_accuracy, x='Metric', y='Value')
 
-                return render(request, 'resultsSocial.html',
-                              {'fig': fig.to_json, 'fig_accuracy': fig_accuracy.to_json()})
+                metrics_graph = fig.to_json()
+                accuracy_graph = fig_accuracy.to_json()
+
+
+                unique_id = uuid.uuid4()
+
+                model_manager.addModel(
+                    name=unique_id,
+                    precision_base=precision,
+                    recall_base=recall,
+                    f1_score_base=f1,
+                    mean_base=mean,
+                    median_base=median,
+                    variance_base=variance,
+                    overall_accuracy_base=overall_01,
+                    energy_consumption_graph=None,
+                    combined_energy_graph=None,
+                    metrics_graph=metrics_graph,
+                    accuracy_graph=accuracy_graph,
+                )
+
+                return render(request, 'cardModels.html', {'manager_models': model_manager.models})
 
             except Exception as e:
                 errore = "Error when calculating AIF360 metrics: " + str(e)

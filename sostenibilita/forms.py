@@ -43,6 +43,7 @@ class FileTraniningForm(forms.Form):
         country_choices = kwargs.pop('countries', [])
         super(FileTraniningForm, self).__init__(*args, **kwargs)
         self.fields['countryIsoCode'].choices = country_choices
+        self.fields['useDefaultModel'].initial = self.initial.get('useDefaultModel', False)
 
     def clean_countryIsoCode(self):
         countryIsoCode = self.cleaned_data.get('countryIsoCode')
@@ -54,7 +55,7 @@ class FileTraniningForm(forms.Form):
         return countryIsoCode
 
     class FileTraniningForm(forms.Form):
-        # ... (rest of your code)
+
 
         def clean(self):
             cleaned_data = super().clean()
@@ -76,8 +77,9 @@ class FileSocialForm(forms.Form):
 
 #Class for managing the form for loading the dataset and defining the protected attributes
 class UploadDatasetForm(forms.Form):
-    datasetFile = forms.FileField(label="Selects the data file on which the model is trained ",
+    datasetFile = forms.FileField(required=False,label="Selects the data file on which the model is trained ",
                                   validators=[validate_data_file_extension])
+    useDefaultModel = forms.BooleanField(required=False, label="Use default model")
 
 #Class for form management to define pre-trained models for environmental sustainability monitoring
 class ModelTrainedForm(forms.Form):
