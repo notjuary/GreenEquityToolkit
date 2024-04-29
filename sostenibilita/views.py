@@ -470,6 +470,38 @@ def create_model():
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
+def add_interactivity(fig):
+            fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
+            fig.update_layout(
+                xaxis_title="Metric",
+                yaxis_title="Value",
+                violingroupgap=0,
+                updatemenus=[
+                    dict(
+                        type="buttons",
+                        direction="left",
+                        buttons=list([
+                            dict(
+                                args=[{"visible": [True, False]}],
+                                label="Hide",
+                                method="update"
+                            ),
+                            dict(
+                                args=[{"visible": [True, True]}],
+                                label="Show",
+                                method="update"
+                            )
+                        ]),
+                        pad={"r": 10, "t": 10},
+                        showactive=True,
+                        x=0.1,
+                        xanchor="left",
+                        y=1.2,
+                        yanchor="top"
+                    ),
+                ]
+            )
+
 
 def loadDefaultModel(request):
     if request.method == "POST":
@@ -501,7 +533,7 @@ def loadDefaultModel(request):
         _, accuracy = model.evaluate(X_test, y_test)
         print('Accuracy: %.2f' % (accuracy * 100))
         predictions = model.predict(X_test)
-        predictions = (predictions > 0.5).astype(int)  # Converti le probabilità in etichette di classe
+        predictions = (predictions > 0.5).astype(int)
 
         # Calculate accuracy
         precision = precision_score(y_test, predictions)
@@ -611,7 +643,6 @@ def loadDefaultModel(request):
             with open(csv_file_path, 'r') as csvfile:
                 csv_reader = csv.DictReader(csvfile, delimiter=',')
                 for row in csv_reader:
-                    print(row)
 
                     # Convert kWh to Joules
                     energy_in_joules = float(
@@ -634,6 +665,13 @@ def loadDefaultModel(request):
 
         energy_consumption_data = [row['energy_consumed'] for row in dataResults]
         fig = px.violin(energy_consumption_data, title="Energy Consumption Distribution")
+        fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
+        fig.update_layout(
+            xaxis_title="Energy Consumed (Joules)",
+            yaxis_title="Count",
+            violingroupgap=0,
+        )
+        add_interactivity(fig)
 
         combined_energy_data = []
         for row in dataResults:
@@ -644,12 +682,9 @@ def loadDefaultModel(request):
         figEnergy = px.violin(df_combined.melt(var_name='Type', value_name='Energy'), y="Energy", x="Type",
                               box=True, title="Energy Consumption Distribution (RAM,CPU,GPU)")
 
-        # Optional customizations for the plot
-        fig.update_layout(
-            xaxis_title="Energy Consumed (Joules)",
-            yaxis_title="Count",
-            violingroupgap=0
-        )
+        figEnergy.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
+        add_interactivity(figEnergy)
+
 
         # Creating a DataFrame with your metrics.
         df_metrics = pd.DataFrame({
@@ -665,7 +700,9 @@ def loadDefaultModel(request):
         df_metrics = df_metrics.melt(var_name='Metric', value_name='Value')
         # Create the box plot with Plotly
         fig_metrics = px.box(df_metrics, x='Metric', y='Value')
+        fig_metrics.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
 
+        add_interactivity(fig_metrics)
 
         df_metrics_accuracy = pd.DataFrame({
             'Accuracy': [accuracy],
@@ -676,7 +713,8 @@ def loadDefaultModel(request):
 
         df_metrics_accuracy = df_metrics_accuracy.melt(var_name='Metric', value_name='Value')
         fig_accuracy = px.box(df_metrics_accuracy, x='Metric', y='Value')
-
+        fig_accuracy.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
+        add_interactivity(fig_accuracy)
 
         energy_consumption_graph=fig.to_json()
         combined_energy_graph=figEnergy.to_json()

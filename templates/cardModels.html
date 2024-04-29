@@ -6,23 +6,31 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --main-bg-color: #f0f1f1;
+            --main-text-color: #333;
+            --header-bg-color: #48a363;
+            --header-text-color: #fff;
+            --card-bg-color: #fff;
+            --card-shadow-color: rgba(0, 0, 0, 0.2);
+            --card-hover-bg-color: #f5f5f5; 
+        }
+
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f0f1f1;
+            background-color: var(--main-bg-color);
+            color: var(--main-text-color);
             margin: 0;
             padding: 0;
         }
 
         header {
-            background-color: #48a363;
-            color: #fff;
+            background-color: var(--header-bg-color);
+            color: var(--header-text-color);
             padding: 10px;
             text-align: center;
         }
-
-        main {
-            padding: 20px;
-        }
+        
 
         section {
             margin-bottom: 20px;
@@ -35,13 +43,13 @@
         }
 
         .card {
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 var(--card-shadow-color);
             transition: transform 0.2s;
             width: 30%;
-            margin-right: 16px;
-            margin-bottom: 16px;
+            margin: 20px;
             cursor: move;
-            background-color: #fff;
+            background-color: var(--card-bg-color);
             padding: 16px;
             box-sizing: border-box;
             user-select: none;
@@ -50,38 +58,61 @@
             align-items: center;
         }
 
-        .graph-container {
-            width: 100%;
-            height: 500px;
-            margin-top: 16px;
+        .card:hover {
+            background-color: var(--card-hover-bg-color); /* Cambia il colore di sfondo al passaggio del mouse */
         }
 
-        .graph {
-            width: 100%;
-            height: 100%;
-        }
+        @media (max-width: 600px) {
+            .card {
+                width: 100%;
+            }
 
-        .navigation-buttons button {
+            .graph-container {
+                width: 100%;
+                height: 500px;
+                margin-top: 16px;
+                border-radius: 10px; 
+                overflow: hidden; 
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
+            }
+
+            .graph {
+                width: 100%;
+                height: 100%;
+                padding: 20px;
+                background-color:#fff;
+            }
+
+              #prev, #next {
+            border-radius: 2px 2px 2px 2px;
             background-color: #48a363;
-            color: #ffffff;
+            color: white;
             border: none;
-            border-radius: 4px;
-            padding: 10px 20px;
-            font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
         }
 
-        .navigation-buttons button:hover {
-            background-color: #388e55;
-        }
 
         #prev {
-            left: 0;
+            float: left;
         }
 
-        #next {
-            right: 0;
+        #next{
+            float: right;
+        }
+
+
+        #prev:hover, #next:hover {
+            background-color: white;
+            color: #48a363;
+        }
+
         }
 
     </style>
@@ -117,8 +148,8 @@
 
                             Plotly.newPlot('energy-chart-{{ forloop.counter }}', fig);
                         </script>
-                        
-                         <div class="graph-container">
+
+                        <div class="graph-container">
                             <div id="combined-energy-chart-{{ forloop.counter }}" class="graph"></div>
                         </div>
                         <script>
@@ -126,30 +157,29 @@
 
                             Plotly.newPlot('combined-energy-chart-{{ forloop.counter }}', figEnergyCombined);
                         </script>
-                        
-                        
+
+
                         <div class="graph-container">
                             <div id="accuracy_graph-{{ forloop.counter }}" class="graph"></div>
                         </div>
-                        
+
                         <script>
                             var figAccuracy = JSON.parse('{{ model_data.accuracy_graph|escapejs }}');
 
                             Plotly.newPlot('accuracy_graph-{{ forloop.counter }}', figAccuracy);
                         </script>
-                        
-                          <div class="graph-container">
+
+                        <div class="graph-container">
                             <div id="metrics_graph-{{ forloop.counter }}" class="graph"></div>
                         </div>
-                        
+
                         <script>
                             var figAccuracy = JSON.parse('{{ model_data.metrics_graph|escapejs }}');
 
                             Plotly.newPlot('metrics_graph-{{ forloop.counter }}', figAccuracy);
                         </script>
-                        
-                        
-                        
+
+
                     </div>
                 </div>
             {% endfor %}
@@ -157,10 +187,46 @@
     </div>
 </div>
 
-<div class="navigation-buttons">
-    <button id="prev">Prev</button>
-    <button id="next">Next</button>
+<div style="width: 80%; margin: 0 auto;">
+    <button id="prevButton">Prev</button>
+    <button id="nextButton">Next</button>
 </div>
+<script>
+    var cards = document.querySelectorAll('.card');
+    var currentIndex = 0;
+
+    function showCard(index) {
+
+        for (var i = 0; i < cards.length; i++) {
+            cards[i].style.display = 'none';
+        }
+
+
+        cards[index].style.display = 'block';
+    }
+
+
+    showCard(currentIndex);
+
+    document.getElementById('prevButton').addEventListener('click', function () {
+
+        currentIndex--;
+        if (currentIndex < 0) {
+            currentIndex = cards.length - 1;
+        }
+        showCard(currentIndex);
+    });
+
+    document.getElementById('nextButton').addEventListener('click', function () {
+
+        currentIndex++;
+        if (currentIndex >= cards.length) {
+            currentIndex = 0;
+        }
+        showCard(currentIndex);
+    });
+</script>
+
 
 </body>
 </html>
