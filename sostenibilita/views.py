@@ -42,6 +42,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import precision_score, recall_score, f1_score
 import uuid
 from sostenibilita.modelManager import ModelManager
+from django.http import JsonResponse, HttpResponseBadRequest
 
 output_dir = '.'
 output_file = 'emissions.csv'
@@ -52,6 +53,17 @@ model_manager = ModelManager()
 # Homepage loading function
 def index(request):
     return render(request, 'index.html')
+
+def get_model_details(request):
+    try:
+        model_name = request.GET.get('name')
+        print(model_name)
+        if model_name not in model_manager.models:
+            return HttpResponseBadRequest("Model name not found in model manager.")
+        model_data = model_manager.models[model_name]
+        return JsonResponse(model_data)
+    except Exception as e:
+        return HttpResponseBadRequest(str(e))
 
 
 # Function for managing the download of the emissions.csv file processed by CodeCarbon
@@ -118,7 +130,7 @@ def uploadDataset(request):
         if form.is_valid():
             use_default_model = form.cleaned_data['useDefaultModel']
             request.session['useDefaultModel'] = use_default_model
-            print(use_default_model)
+
             if use_default_model:
                 return trainingFile(request)
             else:
@@ -736,9 +748,13 @@ def loadDefaultModel(request):
             accuracy_graph=accuracy_graph,
         )
 
+        request.session['useDefaultModel'] = False
         return render(request, 'cardModels.html',{'manager_models':model_manager.models})
 
-    return HttpResponse(request, '404.html',{'errore':'Error loading the default model template'})
+
+
+    errore="Error loading the default model template"
+    return render(request, '404.html', {'errore': errore}, status=404)
 
 # Function for processing the trainingFile.html form for tracking with CodeCarbon the models uploaded by the user
 def uploadFile(request):
@@ -949,7 +965,7 @@ def uploadFile(request):
                 )
 
                 os.remove(temp_file_path)  # Remove the temporary file
-                return render(request, 'cardModels.html', {'manager_models': model_manager.models})
+                return render(request, 'cardModels.html', {'manager_models': json.dumps(model_manager.models)})
 
         else:
             print(form.errors)

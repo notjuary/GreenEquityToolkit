@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Social sustainability for pre-trained models</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
     <style>
+
         :root {
             --main-bg-color: #f0f1f1;
             --main-text-color: #333;
@@ -13,7 +13,7 @@
             --header-text-color: #fff;
             --card-bg-color: #fff;
             --card-shadow-color: rgba(0, 0, 0, 0.2);
-            --card-hover-bg-color: #f5f5f5; 
+            --card-hover-bg-color: #f5f5f5;
         }
 
         body {
@@ -30,203 +30,332 @@
             padding: 10px;
             text-align: center;
         }
-        
 
-        section {
-            margin-bottom: 20px;
-        }
-
-        .introduzione {
-            text-align: center;
-            margin: 0 auto;
-            max-width: 800px;
-        }
-
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px 0 var(--card-shadow-color);
-            transition: transform 0.2s;
-            width: 30%;
-            margin: 20px;
-            cursor: move;
-            background-color: var(--card-bg-color);
-            padding: 16px;
-            box-sizing: border-box;
-            user-select: none;
+        .container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-wrap: nowrap;
+            height: 100vh;
         }
 
-        .card:hover {
-            background-color: var(--card-hover-bg-color); /* Cambia il colore di sfondo al passaggio del mouse */
-        }
-
-        @media (max-width: 600px) {
-            .card {
-                width: 100%;
-            }
-
-            .graph-container {
-                width: 100%;
-                height: 500px;
-                margin-top: 16px;
-                border-radius: 10px; 
-                overflow: hidden; 
-                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
-            }
-
-            .graph {
-                width: 100%;
-                height: 100%;
-                padding: 20px;
-                background-color:#fff;
-            }
-
-              #prev, #next {
-            border-radius: 2px 2px 2px 2px;
-            background-color: #48a363;
-            color: white;
-            border: none;
-            cursor: pointer;
+        .sidebar {
+            background-color: var(--card-bg-color);
+            box-shadow: 2px 0px 5px var(--card-shadow-color);
+            width: 200px;
             padding: 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .metric {
+            margin-bottom: 10px;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .tab {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-shadow-color);
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background-color: var(--card-hover-bg-color);
+        }
+
+        .graph-container {
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .graph-section {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .graph-container > div {
+            display: none;
+        }
+
+        .graph-container .active {
+            display: block;
+        }
+
+        .sidebar {
+            background-color: var(--card-bg-color);
+            box-shadow: 2px 0px 5px var(--card-shadow-color);
+            width: 200px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column; /* Imposta l'orientamento dei pulsanti su una colonna */
+        }
+
+        .selection-menu button {
+            margin-bottom: 5px; /* Spazio tra i pulsanti */
+            width: 100%; /* Larghezza massima dei pulsanti */
+            border: none;
+            padding: 10px;
+            text-align: left;
+            cursor: pointer;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        .selection-menu button:hover {
+            background-color: var(--card-hover-bg-color);
+        }
+
+        .selection-menu button:focus {
+            outline: none; /* Rimuovi l'outline quando il pulsante è in focus */
+        }
+
+        /* Stile per i nomi dei modelli */
+        .model-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333; /* Colore del testo principale */
+        }
+
+        /* Stile per le metriche */
+        .metric p {
+            margin-bottom: 5px;
             font-size: 16px;
-            margin: 4px 2px;
-            transition-duration: 0.4s;
+            color: #666; /* Colore del testo secondario */
         }
 
-
-        #prev {
-            float: left;
+        /* Stile per i valori delle metriche */
+        .metric p span {
+            font-weight: bold;
+            color: #48a363; /* Colore del testo per evidenziare i valori */
         }
 
-        #next{
-            float: right;
+        /* Stile per il menu laterale */
+        .selection-menu {
+            margin-top: 20px;
         }
 
-
-        #prev:hover, #next:hover {
-            background-color: white;
-            color: #48a363;
+        /* Stile per i nomi nel menu laterale */
+        .selection-menu button {
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333; /* Colore del testo principale */
+            background-color: transparent;
+            border: none;
+            padding: 10px;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
+        /* Stile per gli elementi del menu laterale al passaggio del mouse */
+        .selection-menu button:hover {
+            background-color: var(--card-hover-bg-color); /* Colore di sfondo al passaggio del mouse */
+        }
+
+        /* Stile per l'elemento del menu laterale attualmente selezionato */
+        .selection-menu button.active {
+            background-color: #48a363; /* Colore di sfondo per l'elemento attivo */
+            color: #fff; /* Colore del testo per l'elemento attivo */
+        }
+
+        /* Stile per rimuovere il focus sugli elementi del menu laterale */
+        .selection-menu button:focus {
+            outline: none;
+        }
+
+        .graph-selector {
+            margin-top: 20px;
+        }
+
+        .graph-selector select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .graph-selector select:hover,
+        .graph-selector select:focus {
+            border-color: #48a363; /* Cambia il colore del bordo al passaggio del mouse o al focus */
+        }
+
+        /* Stile per gli elementi del selettore del grafico */
+        .graph-selector option {
+            background-color: #fff;
+            color: #333;
+            font-size: 16px;
+        }
+        
+/* Stile per il contenitore delle metriche */
+.metric-container {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Stile per il nome del modello */
+.model-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333; /* Colore del testo principale */
+}
+
+        /* Stile per le singole metriche */
+        .metric-item {
+            margin-bottom: 10px;
+        }
+
+        /* Stile per il nome della metrica */
+        .metric-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333; /* Colore del testo principale */
+        }
+
+        /* Stile per il valore della metrica */
+        .metric-value {
+            font-size: 16px;
+            color: #48a363; /* Colore del testo per evidenziare i valori */
         }
 
     </style>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     {% include 'menu.html' %}
 </head>
 <body>
-<section class="introduzione">
-    <h4>Custom templates with result cards available</h4>
-    <p>In the following section you can view the results obtained from the models.</p>
-</section>
-
-<div class="slideshow-container">
-    <div class="slideshow-container">
-        <div id="slideshow" class="slider">
-            {% for name, model_data in manager_models.items %}
-                <div class="card" draggable="true">
-                    <div class="container">
-                        <h2><b>{{ name }}</b></h2>
-                        <p>Precision: {{ model_data.precision_base }}</p>
-                        <p>Recall: {{ model_data.recall_base }}</p>
-                        <p>F1 Score: {{ model_data.f1_score_base }}</p>
-                        <p>Mean Base: {{ model_data.mean_base }}</p>
-                        <p>Median Base: {{ model_data.median_base }}</p>
-                        <p>Variance Base: {{ model_data.variance_base }}</p>
-                        <p>Overall Accuracy Base: {{ model_data.overall_accuracy_base }}</p>
-                        <div class="graph-container">
-                            <div id="energy-chart-{{ forloop.counter }}" class="graph"></div>
-                        </div>
-                        <script src="https://cdn.plot.ly/plotly-2.15.1.min.js"></script>
-                        <script>
-                            var fig = JSON.parse('{{ model_data.energy_consumption_graph|escapejs }}');
-
-                            Plotly.newPlot('energy-chart-{{ forloop.counter }}', fig);
-                        </script>
-
-                        <div class="graph-container">
-                            <div id="combined-energy-chart-{{ forloop.counter }}" class="graph"></div>
-                        </div>
-                        <script>
-                            var figEnergyCombined = JSON.parse('{{ model_data.combined_energy_graph|escapejs }}');
-
-                            Plotly.newPlot('combined-energy-chart-{{ forloop.counter }}', figEnergyCombined);
-                        </script>
-
-
-                        <div class="graph-container">
-                            <div id="accuracy_graph-{{ forloop.counter }}" class="graph"></div>
-                        </div>
-
-                        <script>
-                            var figAccuracy = JSON.parse('{{ model_data.accuracy_graph|escapejs }}');
-
-                            Plotly.newPlot('accuracy_graph-{{ forloop.counter }}', figAccuracy);
-                        </script>
-
-                        <div class="graph-container">
-                            <div id="metrics_graph-{{ forloop.counter }}" class="graph"></div>
-                        </div>
-
-                        <script>
-                            var figAccuracy = JSON.parse('{{ model_data.metrics_graph|escapejs }}');
-
-                            Plotly.newPlot('metrics_graph-{{ forloop.counter }}', figAccuracy);
-                        </script>
-
-
-                    </div>
-                </div>
+<script>
+    function showModel(modelName) {
+        fetch(`/sostenibilita/get_model_details?name=${modelName}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(modelData => {
+                const metricDiv = document.getElementById('model-metric');
+                metricDiv.querySelector('.model-name').textContent = modelData.model_name;
+                metricDiv.querySelector('#precision').textContent = modelData.precision_base;
+                metricDiv.querySelector('#recall').textContent = modelData.recall_base;
+                metricDiv.querySelector('#f1-score').textContent = modelData.f1_score_base;
+                metricDiv.querySelector('#mean-base').textContent = modelData.mean_base;
+                metricDiv.querySelector('#median-base').textContent = modelData.median_base;
+                metricDiv.querySelector('#variance-base').textContent = modelData.variance_base;
+                metricDiv.querySelector('#overall-accuracy-base').textContent = modelData.overall_accuracy_base;
+                const chartIds = ['energy_consumption_graph', 'combined_energy_graph', 'metrics_graph', 'accuracy_graph'];
+                chartIds.forEach(chartId => {
+                    const chartData = JSON.parse(modelData[chartId]);
+                    if (chartData) {
+                        Plotly.newPlot(chartId, chartData.data, chartData.layout);
+                    }
+                });
+            })
+            .catch(e => {
+                console.error('There was a problem with the fetch operation: ' + e.message);
+            });
+    }
+</script>
+<div class="container">
+    <div class="sidebar">
+        <div class="selection-menu">
+            {% for name,model_name in manager_models.items %}
+                <button onclick="showModel('{{ name }}')">{{ name }}</button>
             {% endfor %}
+        </div>
+    </div>
+    <div class="content">
+
+        <div class="metric" id="model-metric">
+    <div class="metric-container">
+        <p class="model-name"></p>
+        <div class="metric-item">
+            <p class="metric-name">Precision:</p>
+            <p class="metric-value"><span id="precision"></span></p>
+        </div>
+        <div class="metric-item">
+            <p class="metric-name">Recall:</p>
+            <p class="metric-value"><span id="recall"></span></p>
+        </div>
+        <div class="metric-item">
+            <p class="metric-name">F1 Score:</p>
+            <p class="metric-value"><span id="f1-score"></span></p>
+        </div>
+        <div class="metric-item">
+            <p class="metric-name">Mean Base:</p>
+            <p class="metric-value"><span id="mean-base"></span></p>
+        </div>
+        <div class="metric-item">
+            <p class="metric-name">Median Base:</p>
+            <p class="metric-value"><span id="median-base"></span></p>
+        </div>
+        <div class="metric-item">
+            <p class="metric-name">Variance Base:</p>
+            <p class="metric-value"><span id="variance-base"></span></p>
+        </div>
+        <div class="metric-item">
+            <p class="metric-name">Overall Accuracy Base:</p>
+            <p class="metric-value"><span id="overall-accuracy-base"></span></p>
         </div>
     </div>
 </div>
 
-<div style="width: 80%; margin: 0 auto;">
-    <button id="prevButton">Prev</button>
-    <button id="nextButton">Next</button>
+
+        <div class="graph-selector">
+            <select id="graph-select" onchange="showSelectedGraph()">
+                <option value="energy_consumption_graph">Energy Chart</option>
+                <option value="combined_energy_graph">Combined Energy Chart</option>
+                <option value="accuracy_graph">Accuracy Graph</option>
+                <option value="metrics_graph">Metrics Graph</option>
+            </select>
+        </div>
+        
+        <div id="energy_consumption_graph"></div>
+        <div id="combined_energy_graph"></div>
+        <div id="metrics_graph"></div>
+        <div id="accuracy_graph"></div>
+        
+    </div>
 </div>
+
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
 <script>
-    var cards = document.querySelectorAll('.card');
-    var currentIndex = 0;
-
-    function showCard(index) {
-
-        for (var i = 0; i < cards.length; i++) {
-            cards[i].style.display = 'none';
-        }
-
-
-        cards[index].style.display = 'block';
+    const chartIds = ['energy_consumption_graph', 'combined_energy_graph', 'metrics_graph', 'accuracy_graph'];
+    
+    function showSelectedGraph() {
+        const selectedChartId = document.getElementById('graph-select').value;
+        showChart(selectedChartId);
     }
-
-
-    showCard(currentIndex);
-
-    document.getElementById('prevButton').addEventListener('click', function () {
-
-        currentIndex--;
-        if (currentIndex < 0) {
-            currentIndex = cards.length - 1;
-        }
-        showCard(currentIndex);
+    
+    // Funzione per mostrare il grafico selezionato
+function showChart(chartId) {
+    // Nascondi tutti i grafici
+    chartIds.forEach(id => {
+        document.getElementById(id).style.display = 'none';
     });
 
-    document.getElementById('nextButton').addEventListener('click', function () {
-
-        currentIndex++;
-        if (currentIndex >= cards.length) {
-            currentIndex = 0;
-        }
-        showCard(currentIndex);
-    });
+    // Mostra il grafico selezionato
+    document.getElementById(chartId).style.display = 'block';
+    
+}
 </script>
-
-
 </body>
 </html>
