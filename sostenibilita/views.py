@@ -1,9 +1,12 @@
 import json
+import urllib
+import zipfile
+
 import numpy as np
 import joblib
 import pandas as pd
 import yaml
-from aif360.datasets import BinaryLabelDataset
+from aif360.datasets import BinaryLabelDataset, StandardDataset
 from aif360.metrics import ClassificationMetric, BinaryLabelDatasetMetric
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, HttpResponseRedirect, redirect
@@ -38,32 +41,263 @@ from tensorflow.keras.layers import Dense
 import json
 from sklearn.datasets import load_diabetes
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import precision_score, recall_score, f1_score
 import uuid
 from sostenibilita.modelManager import ModelManager
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
 
 output_dir = '.'
 output_file = 'emissions.csv'
-
-#Class to manage added models, getting model cards with results to manage
 model_manager = ModelManager()
+
+#Management function of the loaded default model
+def load_and_preprocess_data(url):
+    col_names = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation',
+                 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country',
+                 'income']
+    df = pd.read_csv(url, names=col_names)
+    df.replace(' ?', np.nan, inplace=True)
+    df = df.dropna()
+    df['income'] = df['income'].apply(lambda x: 1 if x == ' >50K' else 0)
+    return df
+def load_and_preprocess_data_bank(url):
+    zip_path, _ = urllib.request.urlretrieve(url)
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        csv_path = zip_ref.extract('bank.csv')
+
+    df = pd.read_csv(csv_path, sep=';')
+    df['y'] = df['y'].apply(lambda x: 1 if x == 'yes' else 0)
+    return df
+
+#Category decoding function for the default model
+def encode_categorical_features(df, categorical_features):
+    le = LabelEncoder()
+    for feature in categorical_features:
+        df[feature] = le.fit_transform(df[feature])
+    return df
+
+def load_and_preprocess_data_diabetes(url):
+    df = pd.read_csv(url)
+    df['class'] = df['class'].apply(lambda x: 1 if x == 'Positive' else 0)
+    return df
+
+def encode_categorical_features(df, categorical_features):
+    le = LabelEncoder()
+    for feature in categorical_features:
+        df[feature] = le.fit_transform(df[feature])
+    return df
+
+def split_and_normalize_data_diabetes(df):
+    X = df.drop('class', axis=1)
+    y = df['class']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    return X_train, X_test, y_train, y_test
+
+#Data normalization function for the default model
+def split_and_normalize_data(df):
+    X = df.drop('income', axis=1)
+    y = df['income']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    return X_train, X_test, y_train, y_test
+
+
+def split_and_normalize_data_bank(df):
+    X = df.drop('y', axis=1)
+    y = df['y']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    return X_train, X_test, y_train, y_test
+
+
+#Default model execution monitoring function
+def create_and_train_model(X_train, y_train):
+    # Start monitoring with CodeCarbon
+    tracker = OfflineEmissionsTracker(
+        country_iso_code="ITA",
+        output_file=output_file,
+        output_dir=output_dir
+    )
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+    if tf.test.gpu_device_name():
+        print('GPU found')
+    else:
+        print("No GPU found")
+
+    tracker.start()
+    # Define the model
+    model = Sequential()
+    model.add(Dense(32, input_dim=X_train.shape[1], activation='relu'))
+    model.add(Dense(16, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+    # Train the model 10 times
+    for _ in range(10):
+        model.fit(X_train, y_train, epochs=10, batch_size=32)
+    tracker.stop()
+
+    return model
+
+#Function for calculating the metrics needed for the default model
+def calculate_metrics(y_test, y_pred):
+    return precision_score(y_test, y_pred), recall_score(y_test, y_pred),np.mean(y_pred)
+
+#Function for calculating social metrics for the default model
+def calculate_fairness_metrics(dataset, dataset_test, y_pred, unprivileged_groups, privileged_groups):
+    dataset_test_pred = dataset_test.copy()
+    dataset_test_pred.labels = y_pred
+    metric_test_bld = BinaryLabelDatasetMetric(dataset_test_pred, unprivileged_groups=unprivileged_groups,
+                                               privileged_groups=privileged_groups)
+    classified_metric_test = ClassificationMetric(dataset_test, dataset_test_pred,
+                                                  unprivileged_groups=unprivileged_groups,
+                                                  privileged_groups=privileged_groups)
+    return metric_test_bld.mean_difference(), classified_metric_test.equal_opportunity_difference(), classified_metric_test.average_odds_difference()
+
+
+def chargeModel():
+    global model_manager
+
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
+    df = load_and_preprocess_data(url)
+    categorical_features = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex',
+                            'native-country']
+    df = encode_categorical_features(df, categorical_features)
+    X_train, X_test, y_train, y_test = split_and_normalize_data(df)
+    model = create_and_train_model(X_train, y_train)
+    y_pred = (model.predict(X_test) > 0.5).astype("int32")
+    calculate_metrics(y_test, y_pred)
+    dataset = StandardDataset(df, label_name='income', favorable_classes=[1], protected_attribute_names=['sex'],
+                              privileged_classes=[[1]])
+    dataset_train, dataset_test = dataset.split([0.8], shuffle=True)
+    X_train = dataset_train.features
+    y_train = dataset_train.labels.ravel()
+    model.fit(X_train, y_train, epochs=10, batch_size=32)
+    X_test = dataset_test.features
+    y_test = dataset_test.labels.ravel()
+    y_pred = (model.predict(X_test) > 0.5).astype("int32")
+    precision_base, recall_base, mean = calculate_metrics(y_test, y_pred)
+    mean_base, equal_opportunity_difference, average_odds_difference = calculate_fairness_metrics(dataset, dataset_test,
+                                                                                                  y_pred, [{'sex': 0}],
+                                                                                                  [{'sex': 1}])
+    model_manager.addModel(
+        name='modelAdult',
+        accuracy=accuracy_score(y_test, y_pred),
+        precision_base=precision_base,
+        recall_base=recall_base,
+        f1_score_base=f1_score(y_test, y_pred),
+        mean_base=mean,
+        mean_difference_base=mean_base,
+        equal_opportunity_difference=equal_opportunity_difference,
+        average_odds_difference=average_odds_difference,
+    )
+
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank.zip"
+    df = load_and_preprocess_data_bank(url)
+    categorical_features = ['job', 'marital', 'education', 'default', 'housing', 'loan', 'contact', 'month', 'poutcome']
+    df = encode_categorical_features(df, categorical_features)
+    X_train, X_test, y_train, y_test = split_and_normalize_data_bank(df)
+    model = create_and_train_model(X_train, y_train)
+    y_pred = (model.predict(X_test) > 0.5).astype("int32")
+    calculate_metrics(y_test, y_pred)
+    dataset = StandardDataset(df, label_name='y', favorable_classes=[1], protected_attribute_names=['age'],
+                              privileged_classes=[[1]])
+    dataset_train, dataset_test = dataset.split([0.8], shuffle=True)
+    X_train = dataset_train.features
+    y_train = dataset_train.labels.ravel()
+    model.fit(X_train, y_train, epochs=10, batch_size=32)
+    X_test = dataset_test.features
+    y_test = dataset_test.labels.ravel()
+    y_pred = (model.predict(X_test) > 0.5).astype("int32")
+    precision_base, recall_base, mean = calculate_metrics(y_test, y_pred)
+    mean_base, equal_opportunity_difference, average_odds_difference = calculate_fairness_metrics(dataset, dataset_test,
+                                                                                                  y_pred, [{'age': 0}],
+                                                                                                  [{'age': 1}])
+    model_manager.addModel(
+        name='modelBank',
+        accuracy=accuracy_score(y_test, y_pred),
+        precision_base=precision_base,
+        recall_base=recall_base,
+        f1_score_base=f1_score(y_test, y_pred),
+        mean_base=mean,
+        mean_difference_base=mean_base,
+        equal_opportunity_difference=equal_opportunity_difference,
+        average_odds_difference=average_odds_difference,
+    )
+
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00529/diabetes_data_upload.csv"
+    df = load_and_preprocess_data_diabetes(url)
+    categorical_features = ['Gender', 'Polyuria', 'Polydipsia', 'sudden weight loss', 'weakness', 'Polyphagia',
+                            'Genital thrush', 'visual blurring', 'Itching', 'Irritability', 'delayed healing',
+                            'partial paresis', 'muscle stiffness', 'Alopecia', 'Obesity']
+    df = encode_categorical_features(df, categorical_features)
+    X_train, X_test, y_train, y_test = split_and_normalize_data_diabetes(df)
+    model = create_and_train_model(X_train, y_train)
+    y_pred = (model.predict(X_test) > 0.5).astype("int32")
+    calculate_metrics(y_test, y_pred)
+    dataset = StandardDataset(df, label_name='class', favorable_classes=[1], protected_attribute_names=['Gender'],
+                              privileged_classes=[
+                                  [1]])  # Assuming 'Gender' is encoded as 1 for 'Male' and 0 for 'Female'
+    dataset_train, dataset_test = dataset.split([0.8], shuffle=True)
+    X_train = dataset_train.features
+    y_train = dataset_train.labels.ravel()
+    model.fit(X_train, y_train, epochs=10, batch_size=32)
+    X_test = dataset_test.features
+    y_test = dataset_test.labels.ravel()
+    y_pred = (model.predict(X_test) > 0.5).astype("int32")
+    precision_base, recall_base, mean = calculate_metrics(y_test, y_pred)
+    mean_base, equal_opportunity_difference, average_odds_difference = calculate_fairness_metrics(dataset, dataset_test,
+                                                                                                  y_pred,
+                                                                                                  [{'Gender': 0}],
+                                                                                                  [{'Gender': 1}])
+    model_manager.addModel(
+        name='modelDiabetes',
+        accuracy=accuracy_score(y_test, y_pred),
+        precision_base=precision_base,
+        recall_base=recall_base,
+        f1_score_base=f1_score(y_test, y_pred),
+        mean_base=mean,
+        mean_difference_base=mean_base,
+        equal_opportunity_difference=equal_opportunity_difference,
+        average_odds_difference=average_odds_difference,
+    )
+
+
+
+
 
 # Homepage loading function
 def index(request):
     return render(request, 'index.html')
 
-def get_model_details(request):
+
+#Redirect function to the results
+def redirectResult(request):
+    print(model_manager.figs)
+    print(model_manager.models)
+    return render(request, 'cardModels.html',{'figs':model_manager.figs,'metricModels':model_manager.models})
+
+
+@require_http_methods(["DELETE"])
+def deleteModel(request):
+    global model_manager
+
     try:
         model_name = request.GET.get('name')
-        print(model_name)
-        if model_name not in model_manager.models:
-            return HttpResponseBadRequest("Model name not found in model manager.")
-        model_data = model_manager.models[model_name]
-        return JsonResponse(model_data)
+        model_manager.delete_model(model_name)
+        return JsonResponse({"status": "success"})
     except Exception as e:
-        return HttpResponseBadRequest(str(e))
+        return JsonResponse({"status": "error", "error": str(e)})
 
 
 # Function for managing the download of the emissions.csv file processed by CodeCarbon
@@ -482,40 +716,10 @@ def create_model():
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
-def add_interactivity(fig):
-            fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
-            fig.update_layout(
-                xaxis_title="Metric",
-                yaxis_title="Value",
-                violingroupgap=0,
-                updatemenus=[
-                    dict(
-                        type="buttons",
-                        direction="left",
-                        buttons=list([
-                            dict(
-                                args=[{"visible": [True, False]}],
-                                label="Hide",
-                                method="update"
-                            ),
-                            dict(
-                                args=[{"visible": [True, True]}],
-                                label="Show",
-                                method="update"
-                            )
-                        ]),
-                        pad={"r": 10, "t": 10},
-                        showactive=True,
-                        x=0.1,
-                        xanchor="left",
-                        y=1.2,
-                        yanchor="top"
-                    ),
-                ]
-            )
-
 
 def loadDefaultModel(request):
+    global model_manager
+
     if request.method == "POST":
         # Load the dataset
         data = load_diabetes()
@@ -562,18 +766,6 @@ def loadDefaultModel(request):
         # Calculate the average
         mean = np.mean(predictions)
         print(f'Mean: {mean}')
-
-        # Calculate the median
-        median = np.median(predictions)
-        print(f'Median: {median}')
-
-        # Calculate the variance
-        variance = np.var(predictions)
-        print(f'Variance: {variance}')
-
-        # Calculates overall accuracy
-        overall_accuracy = np.mean(predictions == y_test)
-        print(f'Overall Accuracy: {overall_accuracy}')
 
 
         # Crea un DataFrame con i tuoi dati e le etichette
@@ -628,128 +820,25 @@ def loadDefaultModel(request):
         # Run the model for num_inferences times
         with tf.device(device):
             for _ in range(num_inferences):
-                predictions = model.predict(X_test)  # Replace X_test with your actual test data
+                predictions = model.predict(X_test)
 
         # Stop monitoring
         tracker.stop()
 
-        # Check if the file has been created
-        csv_file_path = os.path.join(output_dir, output_file)
-        if os.path.isfile(csv_file_path):
-            print(f"CSV file created: {csv_file_path}")
-
-            with open(csv_file_path, 'r') as csvfile:
-                csv_reader = csv.DictReader(csvfile, delimiter=',')
-                for row in csv_reader:
-                    print(row)
-
-        else:
-            print(f"CSV file not found: {csv_file_path}")
-
-        dataResults = []
-        # Check if the file has been created
-        csv_file_path = os.path.join(output_dir, output_file)
-        if os.path.isfile(csv_file_path):
-            print(f"CSV file created: {csv_file_path}")
-
-            with open(csv_file_path, 'r') as csvfile:
-                csv_reader = csv.DictReader(csvfile, delimiter=',')
-                for row in csv_reader:
-
-                    # Convert kWh to Joules
-                    energy_in_joules = float(
-                        row['energy_consumed']) * 3600000  # Conversion factor (1 kWh = 3600000 J)
-                    ram_energy_in_joules = float(row['ram_energy']) * 3600000
-                    cpu_energy_in_joules = float(row['cpu_energy']) * 3600000
-                    gpu_energy_in_joules = float(row['gpu_energy']) * 3600000
-
-                    dataResults.append({
-                        'timestamp': row['timestamp'],
-                        'run_id': row['run_id'],
-                        'energy_consumed': energy_in_joules,
-                        'duration': row['duration'],
-                        'ram_energy': ram_energy_in_joules,
-                        'cpu_energy': cpu_energy_in_joules,
-                        'gpu_energy': gpu_energy_in_joules
-                    })
-        else:
-            print(f"CSV file not found: {csv_file_path}")
-
-        energy_consumption_data = [row['energy_consumed'] for row in dataResults]
-        fig = px.violin(energy_consumption_data, title="Energy Consumption Distribution")
-        fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
-        fig.update_layout(
-            xaxis_title="Energy Consumed (Joules)",
-            yaxis_title="Count",
-            violingroupgap=0,
-        )
-        add_interactivity(fig)
-
-        combined_energy_data = []
-        for row in dataResults:
-            combined_energy_data.append([row['ram_energy'], row['cpu_energy'], row['gpu_energy']])
-
-        df_combined = pd.DataFrame(combined_energy_data, columns=["RAM", "CPU", "GPU"])
-
-        figEnergy = px.violin(df_combined.melt(var_name='Type', value_name='Energy'), y="Energy", x="Type",
-                              box=True, title="Energy Consumption Distribution (RAM,CPU,GPU)")
-
-        figEnergy.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
-        add_interactivity(figEnergy)
-
-
-        # Creating a DataFrame with your metrics.
-        df_metrics = pd.DataFrame({
-            'Mean difference': [mean_difference],
-            'Equal opportunity difference': [equal_opportunity_difference],
-            'Average odds difference': [average_odds_difference],
-            'Mean of mean differences': [mean],
-            'Median of mean differences': [median],
-            'Variance of mean differences': [variance],
-            'Overall 0,1': [overall_accuracy]
-        })
-
-        df_metrics = df_metrics.melt(var_name='Metric', value_name='Value')
-        # Create the box plot with Plotly
-        fig_metrics = px.box(df_metrics, x='Metric', y='Value')
-        fig_metrics.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
-
-        add_interactivity(fig_metrics)
-
-        df_metrics_accuracy = pd.DataFrame({
-            'Accuracy': [accuracy],
-            'Precision': [precision],
-            'Recall': [recall],
-            'F1-score': [f1]
-        })
-
-        df_metrics_accuracy = df_metrics_accuracy.melt(var_name='Metric', value_name='Value')
-        fig_accuracy = px.box(df_metrics_accuracy, x='Metric', y='Value')
-        fig_accuracy.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
-        add_interactivity(fig_accuracy)
-
-        energy_consumption_graph=fig.to_json()
-        combined_energy_graph=figEnergy.to_json()
-        metrics_graph=fig_metrics.to_json()
-        accuracy_graph=fig_accuracy.to_json()
-
         model_manager.addModel(
-            name='base_model',
+            name='modelBase',
+            accuracy=accuracy,
             precision_base=precision,
             recall_base=recall,
             f1_score_base=f1,
             mean_base=mean,
-            median_base=median,
-            variance_base=variance,
-            overall_accuracy_base=accuracy ,
-            energy_consumption_graph=energy_consumption_graph,
-            combined_energy_graph=combined_energy_graph,
-            metrics_graph=metrics_graph,
-            accuracy_graph=accuracy_graph,
+            mean_difference_base=mean_difference,
+            equal_opportunity_difference=equal_opportunity_difference,
+            average_odds_difference=average_odds_difference,
         )
 
         request.session['useDefaultModel'] = False
-        return render(request, 'cardModels.html',{'manager_models':model_manager.models})
+        return redirect(redirectResult)
 
 
 
@@ -894,6 +983,7 @@ def uploadFile(request):
                     finally:
                         tracker.stop()
 
+
                 dataResults = []
                 # Check if the file has been created
                 csv_file_path = os.path.join(output_dir, output_file)
@@ -946,26 +1036,17 @@ def uploadFile(request):
                 energy_consumption_graph = fig.to_json()
                 combined_energy_graph = figEnergy.to_json()
 
+
+                energy_consumption_graph = fig.to_json()
+                combined_energy_graph = figEnergy.to_json()
+
+
                 messages.success(request, "Processing successfully completed!")
                 unique_id = uuid.uuid4()
 
-                model_manager.addModel(
-                    name=unique_id,
-                    precision_base=None,
-                    recall_base=None,
-                    f1_score_base=None,
-                    mean_base=None,
-                    median_base=None,
-                    variance_base=None,
-                    overall_accuracy_base=None,
-                    energy_consumption_graph=energy_consumption_graph,
-                    combined_energy_graph=combined_energy_graph,
-                    metrics_graph=None,
-                    accuracy_graph=None,
-                )
 
                 os.remove(temp_file_path)  # Remove the temporary file
-                return render(request, 'cardModels.html', {'manager_models': json.dumps(model_manager.models)})
+                return render(request, 'cardModels.html', {'figs':model_manager.figs})
 
         else:
             print(form.errors)
@@ -1193,79 +1274,13 @@ def uploadFileSocial(request):
                     BinaryLabelDataset(df=x, label_names=[labelAttribute],
                                        protected_attribute_names=[protectedAttributes])).mean_difference())
                 mean = mean_differences.mean()
-                median = mean_differences.median()
-                variance = mean_differences.var()
 
-                # Calculate the overall 0,1 for each group
-                overall_01 = grouped.apply(lambda x: BinaryLabelDatasetMetric(
-                    BinaryLabelDataset(df=x, label_names=[labelAttribute],
-                                       protected_attribute_names=[protectedAttributes])).num_positives() / len(x))
 
                 # Calculate accuracy metrics.
                 accuracy = accuracy_score(data[labelAttribute], predictions)
                 precision = precision_score(data[labelAttribute], predictions)
                 recall = recall_score(data[labelAttribute], predictions)
                 f1 = f1_score(data[labelAttribute], predictions)
-
-
-                # Print metrics
-                print("Mean difference =", mean_difference)
-                print("Equal opportunity difference =", equal_opportunity_difference)
-                print("Average odds difference =", average_odds_difference)
-                print("Accuracy =", accuracy)
-                print("Precision =", precision)
-                print("Recall =", recall)
-                print("F1-score =", f1)
-                print("Mean of mean differences:\n", mean)
-                print("Median of mean differences:\n", median)
-                print("Variance of mean differences:\n", variance)
-                print("Overall 0,1:\n", overall_01)
-
-                # Creating a DataFrame with your metrics.
-                df_metrics = pd.DataFrame({
-                    'Mean difference': [mean_difference],
-                    'Equal opportunity difference': [equal_opportunity_difference],
-                    'Average odds difference': [average_odds_difference],
-                    'Mean of mean differences': [mean],
-                    'Median of mean differences': [median],
-                    'Variance of mean differences': [variance],
-                    'Overall 0,1': [overall_01]
-                })
-
-                df_metrics = df_metrics.melt(var_name='Metric', value_name='Value')
-                # Create the box plot with Plotly
-                fig = px.box(df_metrics, x='Metric', y='Value')
-
-                df_metrics_accuracy = pd.DataFrame({
-                    'Accuracy': [accuracy],
-                    'Precision': [precision],
-                    'Recall': [recall],
-                    'F1-score': [f1]
-                })
-
-                df_metrics_accuracy = df_metrics_accuracy.melt(var_name='Metric', value_name='Value')
-                fig_accuracy = px.box(df_metrics_accuracy, x='Metric', y='Value')
-
-                metrics_graph = fig.to_json()
-                accuracy_graph = fig_accuracy.to_json()
-
-
-                unique_id = uuid.uuid4()
-
-                model_manager.addModel(
-                    name=unique_id,
-                    precision_base=precision,
-                    recall_base=recall,
-                    f1_score_base=f1,
-                    mean_base=mean,
-                    median_base=median,
-                    variance_base=variance,
-                    overall_accuracy_base=overall_01,
-                    energy_consumption_graph=None,
-                    combined_energy_graph=None,
-                    metrics_graph=metrics_graph,
-                    accuracy_graph=accuracy_graph,
-                )
 
                 return render(request, 'cardModels.html', {'manager_models': model_manager.models})
 

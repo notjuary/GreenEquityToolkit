@@ -11,6 +11,10 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+from sostenibilita.views import chargeModel
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tesiSostenibilita.settings')
 
 application = get_wsgi_application()
+
+chargeModel()

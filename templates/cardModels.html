@@ -30,46 +30,7 @@
             padding: 10px;
             text-align: center;
         }
-
-        .container {
-            display: flex;
-            flex-wrap: nowrap;
-            height: 100vh;
-        }
-
-        .sidebar {
-            background-color: var(--card-bg-color);
-            box-shadow: 2px 0px 5px var(--card-shadow-color);
-            width: 200px;
-            padding: 10px;
-        }
-
-        .content {
-            flex: 1;
-            padding: 20px;
-            overflow: auto;
-        }
-
-        .metric {
-            margin-bottom: 10px;
-        }
-
-        .tab-container {
-            display: flex;
-            margin-top: 20px;
-        }
-
-        .tab {
-            background-color: var(--card-bg-color);
-            border: 1px solid var(--card-shadow-color);
-            flex: 1;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .tab.active {
-            background-color: var(--card-hover-bg-color);
-        }
+        
 
         .graph-container {
             height: 400px;
@@ -89,16 +50,7 @@
         .graph-container .active {
             display: block;
         }
-
-        .sidebar {
-            background-color: var(--card-bg-color);
-            box-shadow: 2px 0px 5px var(--card-shadow-color);
-            width: 200px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column; /* Imposta l'orientamento dei pulsanti su una colonna */
-        }
-
+        
         .selection-menu button {
             margin-bottom: 5px; /* Spazio tra i pulsanti */
             width: 100%; /* Larghezza massima dei pulsanti */
@@ -117,33 +69,7 @@
         .selection-menu button:focus {
             outline: none; /* Rimuovi l'outline quando il pulsante è in focus */
         }
-
-        /* Stile per i nomi dei modelli */
-        .model-name {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333; /* Colore del testo principale */
-        }
-
-        /* Stile per le metriche */
-        .metric p {
-            margin-bottom: 5px;
-            font-size: 16px;
-            color: #666; /* Colore del testo secondario */
-        }
-
-        /* Stile per i valori delle metriche */
-        .metric p span {
-            font-weight: bold;
-            color: #48a363; /* Colore del testo per evidenziare i valori */
-        }
-
-        /* Stile per il menu laterale */
-        .selection-menu {
-            margin-top: 20px;
-        }
-
+        
         /* Stile per i nomi nel menu laterale */
         .selection-menu button {
             margin-bottom: 10px;
@@ -173,189 +99,393 @@
         .selection-menu button:focus {
             outline: none;
         }
+        
 
-        .graph-selector {
-            margin-top: 20px;
+        .graph-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .graph-selector select {
-            width: 100%;
+        .graph-container {
+            border:2px solid transparent; 
+            border-radius: 10px;
             padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #fff;
-            font-size: 16px;
-            color: #333;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
+            max-width: 100%;
+            width: 100vw; /* Imposta la larghezza al 100% della larghezza della viewport */
+            height: 100vh; /* Imposta l'altezza al 100% dell'altezza della viewport */
+            overflow-x: scroll; /* Abilita lo scorrimento orizzontale */
+            white-space: nowrap; /* Evita il wrap dei grafici */
+            padding-left: 20px; /* Aggiungi un padding a sinistra per evitare che il grafico si sovrapponga al menu */
+            padding-right: 20px;
         }
 
-        .graph-selector select:hover,
-        .graph-selector select:focus {
-            border-color: #48a363; /* Cambia il colore del bordo al passaggio del mouse o al focus */
+        .graph-item {
+            display: none;
+            width: 100vw; /* Imposta la larghezza al 100% della larghezza della viewport */
+            height: 100vh; /* Imposta l'altezza al 100% dell'altezza della viewport */
         }
 
-        /* Stile per gli elementi del selettore del grafico */
-        .graph-selector option {
-            background-color: #fff;
-            color: #333;
-            font-size: 16px;
+        /* Stile per il pulsante */
+        #toggleGraphs {
+            margin: 20px auto;
+            background-color: #48a363; /* Colore di sfondo */
+            color: #fff; /* Colore del testo */
+            border: none; /* Rimuove il bordo */
+            padding: 10px 20px; /* Dimensioni del padding */
+            font-size: 16px; /* Dimensione del testo */
+            cursor: pointer; /* Mostra il cursore come pointer */
+            border-radius: 5px; /* Bordi arrotondati */
+            transition: background-color 0.3s ease; /* Effetto di transizione sul cambio di colore di sfondo */
+            
+        }
+
+        /* Stile per il pulsante al passaggio del mouse */
+        #toggleGraphs:hover {
+            background-color: #5abf74; /* Cambia il colore di sfondo al passaggio del mouse */
+        }
+
+        /* Stile per i pulsanti di navigazione */
+        .nav-button {
+            margin: 10px 20px;
+            background-color: #48a363; /* Colore di sfondo */
+            color: #fff; /* Colore del testo */
+            border: none; /* Rimuove il bordo */
+            padding: 10px 20px; /* Dimensioni del padding */
+            font-size: 16px; /* Dimensione del testo */
+            cursor: pointer; /* Mostra il cursore come pointer */
+            border-radius: 5px; /* Bordi arrotondati */
+            transition: background-color 0.3s ease; /* Effetto di transizione sul cambio di colore di sfondo */
+            
+        }
+
+        .hidden {
+            display: none;
         }
         
-/* Stile per il contenitore delle metriche */
-.metric-container {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
+        /* Stile per i pulsanti di navigazione al passaggio del mouse */
+        .nav-button:hover {
+            background-color: #5abf74; /* Cambia il colore di sfondo al passaggio del mouse */
+        }
 
-/* Stile per il nome del modello */
-.model-name {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #333; /* Colore del testo principale */
-}
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+        }
 
-        /* Stile per le singole metriche */
+        .metric-section {
+            margin-top: 20px; /* Aggiunge spazio sopra alle metriche */
+            display: flex;
+            justify-content: space-around; /* Allinea le metriche in modo uniforme lungo l'asse principale */
+            flex-wrap: wrap; /* Consente il wrap delle metriche quando lo spazio è insufficiente */
+            width: 100%; /* Imposta la larghezza al 100% */
+        }
+
+
+        .metric-container {
+            width: 100%;
+            flex: 1;
+            max-width: 280px; /* Riduci la larghezza massima */
+            margin: 10px 5px; /* Riduci il margine */
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 2px; /* Riduci il padding */
+        }
+
+
+
+        .model-card {
+            flex: 1;
+            max-width: 300px;
+            margin: 0 2px 5px; /* Riduci il margine */
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow: hidden;
+        }
+
+
+
+        /* Stili per il nome del modello */
+        .model-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333; /* Colore del testo principale */
+        }
+
+        /* Stili per le singole metriche */
         .metric-item {
             margin-bottom: 10px;
         }
 
-        /* Stile per il nome della metrica */
+        /* Stili per il nome della metrica */
         .metric-name {
             font-size: 16px;
             font-weight: bold;
             color: #333; /* Colore del testo principale */
         }
 
-        /* Stile per il valore della metrica */
+        /* Stili per il valore della metrica */
         .metric-value {
             font-size: 16px;
             color: #48a363; /* Colore del testo per evidenziare i valori */
+        }
+
+        /* Stili per l'animazione delle card dei modelli */
+        @keyframes slideIn {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .model-card {
+            animation: slideDown 0.5s ease-in-out; /* Aggiungi l'animazione slideDown */
+        }
+
+        .metric-section.hidden {
+            display: none;
+        }
+
+        /* Stile per il pulsante di eliminazione */
+        .delete-button {
+            margin-top: 10px;
+            background-color: #48a363; /* Colore di sfondo rosso */
+            color: #fff; /* Colore del testo bianco */
+            border: none; /* Rimuove il bordo */
+            padding: 10px 20px; /* Dimensioni del padding */
+            font-size: 16px; /* Dimensione del testo */
+            cursor: pointer; /* Mostra il cursore come pointer */
+            border-radius: 5px; /* Bordi arrotondati */
+            transition: background-color 0.3s ease; /* Effetto di transizione sul cambio di colore di sfondo */
+        }
+
+        /* Stile per il pulsante di eliminazione al passaggio del mouse */
+        .delete-button:hover {
+            background-color: #5abf74; /* Cambia il colore di sfondo al passaggio del mouse */
+        }
+
+        
+        /* Stili per schermi di dimensioni inferiori a 768px (ad esempio, smartphone in modalità portrait) */
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column; /* Imposta l'orientamento della flessione su colonna per adattarsi meglio allo schermo stretto */
+            }
+
+            .sidebar {
+                width: 100%; /* Occupa l'intera larghezza dello schermo */
+                margin-bottom: 20px; /* Aggiunge spazio inferiore per distanziare il contenuto */
+            }
+
+            .content {
+                padding: 10px; /* Riduce il padding laterale */
+            }
+
+            .graph-container {
+                margin-top: 10px; /* Riduce lo spazio superiore per adattarsi meglio allo schermo più piccolo */
+                padding-left: 10px; /* Riduce il padding sinistro */
+                padding-right: 10px; /* Riduce il padding destro */
+            }
+        }
+
+        /* Stili per schermi di dimensioni comprese tra 769px e 1024px (ad esempio, tablet in modalità landscape) */
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            .sidebar {
+                width: 250px; /* Aumenta leggermente la larghezza della barra laterale */
+            }
+        }
+
+        /* Stili per schermi di dimensioni superiori a 1024px (ad esempio, schermi desktop) */
+        @media screen and (min-width: 1025px) {
+            .graph-container {
+                padding-left: 20px; /* Ripristina il padding sinistro predefinito */
+                padding-right: 20px; /* Ripristina il padding destro predefinito */
+            }
         }
 
     </style>
     {% include 'menu.html' %}
 </head>
 <body>
-<script>
-    function showModel(modelName) {
-        fetch(`/sostenibilita/get_model_details?name=${modelName}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(modelData => {
-                const metricDiv = document.getElementById('model-metric');
-                metricDiv.querySelector('.model-name').textContent = modelData.model_name;
-                metricDiv.querySelector('#precision').textContent = modelData.precision_base;
-                metricDiv.querySelector('#recall').textContent = modelData.recall_base;
-                metricDiv.querySelector('#f1-score').textContent = modelData.f1_score_base;
-                metricDiv.querySelector('#mean-base').textContent = modelData.mean_base;
-                metricDiv.querySelector('#median-base').textContent = modelData.median_base;
-                metricDiv.querySelector('#variance-base').textContent = modelData.variance_base;
-                metricDiv.querySelector('#overall-accuracy-base').textContent = modelData.overall_accuracy_base;
-                const chartIds = ['energy_consumption_graph', 'combined_energy_graph', 'metrics_graph', 'accuracy_graph'];
-                chartIds.forEach(chartId => {
-                    const chartData = JSON.parse(modelData[chartId]);
-                    if (chartData) {
-                        Plotly.newPlot(chartId, chartData.data, chartData.layout);
-                    }
-                });
-            })
-            .catch(e => {
-                console.error('There was a problem with the fetch operation: ' + e.message);
-            });
-    }
-</script>
-<div class="container">
-    <div class="sidebar">
-        <div class="selection-menu">
-            {% for name,model_name in manager_models.items %}
-                <button onclick="showModel('{{ name }}')">{{ name }}</button>
-            {% endfor %}
-        </div>
+<div class="graph-section">
+    <button id="toggleGraphs">Show/Hide Graphs</button>
+    <div class="nav-buttons">
+        <button id="prevGraph" class="nav-button hidden">Previous</button>
+        <button id="nextGraph" class="nav-button hidden">Next</button>
     </div>
-    <div class="content">
 
-        <div class="metric" id="model-metric">
-    <div class="metric-container">
-        <p class="model-name"></p>
-        <div class="metric-item">
-            <p class="metric-name">Precision:</p>
-            <p class="metric-value"><span id="precision"></span></p>
-        </div>
-        <div class="metric-item">
-            <p class="metric-name">Recall:</p>
-            <p class="metric-value"><span id="recall"></span></p>
-        </div>
-        <div class="metric-item">
-            <p class="metric-name">F1 Score:</p>
-            <p class="metric-value"><span id="f1-score"></span></p>
-        </div>
-        <div class="metric-item">
-            <p class="metric-name">Mean Base:</p>
-            <p class="metric-value"><span id="mean-base"></span></p>
-        </div>
-        <div class="metric-item">
-            <p class="metric-name">Median Base:</p>
-            <p class="metric-value"><span id="median-base"></span></p>
-        </div>
-        <div class="metric-item">
-            <p class="metric-name">Variance Base:</p>
-            <p class="metric-value"><span id="variance-base"></span></p>
-        </div>
-        <div class="metric-item">
-            <p class="metric-name">Overall Accuracy Base:</p>
-            <p class="metric-value"><span id="overall-accuracy-base"></span></p>
-        </div>
+    <div class="graph-container">
+        {% for fig_json in figs %}
+            <div class="graph-item" id="graph-{{ forloop.counter }}"></div>
+        {% endfor %}
+    </div>
+
+
+    <div class="metric-section hidden">
+        {% for model_name, model_data in metricModels.items %}
+            <div class="model-card" id="model-card-{{ model_name }}">
+                <div class="metric-container">
+                    <div class="model-metrics" id="model-metrics">
+                        <div class="model-name">{{ model_name }}</div>
+                        <div class="metric-item">
+                            <div class="metric-name">Accuracy</div>
+                            <div class="metric-value">{{ model_data.accuracy }}</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-name">Precision</div>
+                            <div class="metric-value">{{ model_data.precision_base }}</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-name">Recall</div>
+                            <div class="metric-value">{{ model_data.recall_base }}</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-name">F1 Score</div>
+                            <div class="metric-value">{{ model_data.f1_score_base }}</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-name">Mean</div>
+                            <div class="metric-value">{{ model_data.mean_base }}</div>
+                        </div>
+                    </div>
+                    <button class="delete-button" onclick="deleteModel('{{ model_name }}')">Delete</button>
+                </div>
+            </div>
+        {% endfor %}
     </div>
 </div>
-
-
-        <div class="graph-selector">
-            <select id="graph-select" onchange="showSelectedGraph()">
-                <option value="energy_consumption_graph">Energy Chart</option>
-                <option value="combined_energy_graph">Combined Energy Chart</option>
-                <option value="accuracy_graph">Accuracy Graph</option>
-                <option value="metrics_graph">Metrics Graph</option>
-            </select>
-        </div>
-        
-        <div id="energy_consumption_graph"></div>
-        <div id="combined_energy_graph"></div>
-        <div id="metrics_graph"></div>
-        <div id="accuracy_graph"></div>
-        
-    </div>
-</div>
-
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
 <script>
-    const chartIds = ['energy_consumption_graph', 'combined_energy_graph', 'metrics_graph', 'accuracy_graph'];
+    document.addEventListener('DOMContentLoaded', (event) => {
+        var graphContainer = document.querySelector('.graph-container');
+        var button = document.getElementById('toggleGraphs');
+        var prevButton = document.getElementById('prevGraph');
+        var nextButton = document.getElementById('nextGraph');
+        var graphs = document.getElementsByClassName('graph-item');
+        var currentGraph = 0;
+        var areGraphsVisible = false;
+        var slideIndex = 0;
+        showSlides();
     
-    function showSelectedGraph() {
-        const selectedChartId = document.getElementById('graph-select').value;
-        showChart(selectedChartId);
-    }
-    
-    // Funzione per mostrare il grafico selezionato
-function showChart(chartId) {
-    // Nascondi tutti i grafici
-    chartIds.forEach(id => {
-        document.getElementById(id).style.display = 'none';
-    });
+        prevButton.style.display = 'none';
+        nextButton.style.display = 'none';
 
-    // Mostra il grafico selezionato
-    document.getElementById(chartId).style.display = 'block';
-    
-}
+        button.addEventListener('click', function () {
+            var areGraphsHidden = graphs[0].style.display === 'none';
+            for (var i = 0; i < graphs.length; i++) {
+                graphs[i].style.display = areGraphsHidden ? 'block' : 'none';
+            }
+            var buttonText = button.innerText;
+            button.innerText = buttonText === 'Show Graphs' ? 'Hide Graphs' : 'Show Graphs';
+            if (areGraphsHidden) {
+                prevButton.style.display = 'inline-block';
+                nextButton.style.display = 'inline-block';
+                if (!areGraphsVisible) {
+                    currentGraph = 0;  // Reset currentGraph to the first graph only when graphs were not previously visible
+                    areGraphsVisible = true;
+                    document.querySelector('.metric-section').classList.remove('hidden');
+                }
+            } else {
+                prevButton.style.display = 'none';
+                nextButton.style.display = 'none';
+                areGraphsVisible = false;
+                document.querySelector('.metric-section').classList.add('hidden');
+            }
+            graphContainer.style.borderColor = areGraphsHidden ? '#48a363' : 'transparent';
+        });
+
+        prevButton.addEventListener('click', function () {
+            if (graphs.length > 1) {
+                graphs[currentGraph].style.display = 'none';
+                currentGraph = (currentGraph - 1 + graphs.length) % graphs.length;
+                graphs[currentGraph].style.display = 'block';
+            }
+        });
+
+        nextButton.addEventListener('click', function () {
+            if (graphs.length > 1) {
+                graphs[currentGraph].style.display = 'none';
+                currentGraph = (currentGraph + 1) % graphs.length;
+                graphs[currentGraph].style.display = 'block';
+            }
+        });
+
+        {% for fig_json in figs %}
+            var fig = JSON.parse('{{ fig_json|escapejs }}');
+            var graphId = 'graph-' + '{{ forloop.counter }}';
+            Plotly.react(graphId, fig.data, fig.layout);
+        {% endfor %}
+
+        function showSlides() {
+            var slides = document.querySelectorAll('.metric-container');
+            if (slides.length > 10) { // Avvia lo slideshow solo se ci sono più di 10 elementi
+                var i;
+                for (i = 0; i < slides.length; i++) {
+                    slides[i].style.display = 'none';  // Nasconde tutte le slide
+                }
+                slideIndex++;
+                if (slideIndex > slides.length) {
+                    slideIndex = 1;
+                }
+                slides[slideIndex - 1].style.display = 'block';  // Mostra la slide corrente
+                setTimeout(showSlides, 2000);  // Cambia slide ogni 2 secondi (puoi regolare il tempo qui)
+            }
+        }
+
+        window.deleteModel = function (modelName) {
+           
+            var xhr = new XMLHttpRequest();
+
+            
+            xhr.open('DELETE', '/sostenibilita/deleteModel?name=' + encodeURIComponent(modelName), true);
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+            
+       
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    
+                    var modelCard = document.getElementById('model-card-' + encodeURIComponent(modelName));
+                    if(modelCard) {
+                        modelCard.parentNode.removeChild(modelCard);
+                    } else {
+                        console.log('Unable to find model card with ID:', 'model-card-' + encodeURIComponent(modelName));
+                    }
+                    window.location.href = '/sostenibilita/redirectResult';
+                } else {
+                
+                    alert('An error occurred while deleting the template');
+                }
+            };
+            
+            xhr.send();
+        };
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+    });
 </script>
+
 </body>
 </html>

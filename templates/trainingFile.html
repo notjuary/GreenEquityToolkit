@@ -145,10 +145,10 @@ input[type="file"] {
         {{ form.dataFile.label_tag }} <input type="file" id="dataFile" name="{{ form.dataFile.name }}">
         {% if request.session.useDefaultModel %}
             {{ form.useDefaultModel.label_tag }} <input type="checkbox" id="useDefaultModel" name="{{ form.useDefaultModel.name }}" checked> <br>
-        {% else %}
+        {% else %} <br>
             {{ form.useDefaultModel.label_tag }} <input type="checkbox" id="useDefaultModel" name="{{ form.useDefaultModel.name }}">
-        {% endif %}
-    
+        {% endif %} 
+        <br>
         {{ form.countryIsoCode.label_tag }} {{ form.countryIsoCode }}
         {{ form.inferenceDevice.label_tag }} {{ form.inferenceDevice }}
         {{ form.numInferences.label_tag }} {{ form.numInferences }}
