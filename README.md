@@ -1,7 +1,7 @@
 
-# GreenEquity Tololkit - three-year thesis project Francesco Alfonso Barlotti in Computer Science
+# GreenEquity Toolkit - Bachelor's thesis project in Computer Science
 
-Implementation of analytical software with the goal of visualizing and obtaining aspects to social, environmental sustainability in machine learning systems.
+Implementation of analytical software with the goal of visualizing and obtaining aspects to social, environmental sustainability in machine learning systems.A web-app was realised using the high-level Python framework Django. CodeCarbon was used to assess environmental sustainability, while AIF360 was used for social sustainability. For the identification of pre-trained models, the open-source platform HuggingFace was used.
 
 Would you like to download the repository locally and run it? Follow these steps:
 
