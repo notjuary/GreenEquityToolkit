@@ -1,7 +1,7 @@
 
-# Toolkit for sustainability in ML systems- three-year thesis project Francesco Alfonso Barlotti in Computer Science
+# GreenEquity Tololkit - three-year thesis project Francesco Alfonso Barlotti in Computer Science
 
-Implementation of analytical software with the goal of visualizing and obtaining aspects to social, environmental and economic sustainability in machine learning systems.
+Implementation of analytical software with the goal of visualizing and obtaining aspects to social, environmental sustainability in machine learning systems.
 
 Would you like to download the repository locally and run it? Follow these steps:
 
